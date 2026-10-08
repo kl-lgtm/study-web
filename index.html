@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<!-- HTML5 文档类型声明 -->
+<html lang="zh-CN">
+<!-- 设置网页语言为中文 -->
+
+<head>
+    <!-- 设置文档字符编码为UTF-8，防止中文乱码 -->
+    <meta charset="UTF-8">
+    <!-- 设置视口，适配移动端设备 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 网页标题 -->
+    <title>个人学习网站（韦兰珍）</title>
+    <!-- 引入网站图标 -->
+    <link rel="shortcut icon" href="imgs/favicon.ico" type="image/x-icon">
+    <!-- 引入工具JS文件（包含时间格式化、星期函数） -->
+    <script src="js/utils.js"></script>
+    <style>
+        /* ========== 全局样式初始化 ========== */
+        /* 清除默认内外边距，统一盒子模型为border-box */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 页面整体样式：设置字体、背景图及其显示方式 */
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background-image: url("imgs/背景图.jpeg");
+            background-size: cover;
+            /* 背景图铺满屏幕 */
+            background-repeat: no-repeat;
+            /* 背景图不重复 */
+            background-position: center;
+            /* 背景图居中显示 */
+            background-attachment: fixed;
+            /* 背景图固定不随滚动 */
+            min-height: 100vh;
+            /* 最小高度占满视口 */
+            padding-bottom: 80px;
+            /* 底部留出footer空间 */
+        }
+
+        /* ========== 登录/注册按钮区域 ========== */
+        /* 右上角用户操作按钮容器：弹性布局，右对齐 */
+        .user-actions {
+            display: flex;
+            /* 弹性布局 */
+            justify-content: flex-end;
+            /* 右对齐 */
+            gap: 12px;
+            /* 按钮之间的间距 */
+            padding: 12px 25px;
+            /* 上下左右内边距 */
+            flex-wrap: wrap;
+            /* 小屏幕允许换行 */
+        }
+
+        /* 登录/注册按钮统一样式 */
+        .user-actions button {
+            padding: 8px 20px;
+            /* 按钮内边距 */
+            font-size: 15px;
+            /* 字体大小 */
+            border: 2px solid #0d7be9;
+            /* 蓝色边框 */
+            background: rgba(255, 255, 255, 0.85);
+            /* 半透明白色背景 */
+            color: #0d7be9;
+            /* 蓝色文字 */
+            border-radius: 20px;
+            /* 圆角按钮 */
+            cursor: pointer;
+            /* 鼠标变为手型 */
+            transition: all 0.3s ease;
+            /* 过渡动画 */
+            font-weight: bold;
+            /* 加粗 */
+        }
+
+        /* 登录/注册按钮鼠标悬浮效果 */
+        .user-actions button:hover {
+            background: #0d7be9;
+            /* 蓝色背景 */
+            color: #fff;
+            /* 白色文字 */
+            transform: translateY(-2px);
+            /* 上移2px */
+            box-shadow: 0 4px 12px rgba(13, 123, 233, 0.4);
+            /* 蓝色阴影 */
+        }
+
+        /* 登录成功后的用户信息显示 */
+        #userInfo {
+            display: none;
+            /* 默认隐藏 */
+            font-size: 15px;
+            /* 字体大小 */
+            color: #0d7be9;
+            /* 蓝色文字 */
+            font-weight: bold;
+            /* 加粗 */
+            align-self: center;
+            /* 垂直居中 */
+        }
+
+        /* 退出登录按钮 */
+        #logoutBtn {
+            display: none;
+            /* 默认隐藏 */
+        }
+
+        /* ========== 主标题样式 ========== */
+        /* 网站大标题：居中、蓝色、文字阴影 */
+        h1 {
+            text-align: center;
+            /* 水平居中 */
+            margin: 20px 0 10px;
+            /* 上下外边距 */
+            color: #0d7be9;
+            /* 蓝色 */
+            font-size: 32px;
+            /* 字体大小 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            /* 文字阴影 */
+            letter-spacing: 2px;
+            /* 字间距 */
+        }
+
+        /* 副标题样式 */
+        .subtitle {
+            text-align: center;
+            /* 水平居中 */
+            color: #666;
+            /* 灰色 */
+            font-size: 16px;
+            /* 字体大小 */
+            margin-bottom: 15px;
+            /* 底部外边距 */
+        }
+
+        /* ========== 轮播图样式 ========== */
+        /* 轮播图外层容器：限制宽度、居中、溢出隐藏 */
+        .carousel-container {
+            width: 90%;
+            /* 宽度占父容器90% */
+            max-width: 960px;
+            /* 最大宽度960px */
+            margin: 0 auto 20px;
+            /* 水平居中，底部外边距 */
+            position: relative;
+            /* 相对定位，作为子元素定位参考 */
+            overflow: hidden;
+            /* 溢出隐藏 */
+            border-radius: 12px;
+            /* 圆角 */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            /* 阴影 */
+        }
+
+        /* 轮播图所有图片的滑动轨道：弹性布局，通过transform平移实现轮播 */
+        .carousel-track {
+            display: flex;
+            /* 弹性布局，图片横向排列 */
+            transition: transform 0.6s ease-in-out;
+            /* 平滑滑动动画 */
+        }
+
+        /* 每张轮播图：宽度100%自适应，无拉伸 */
+        .carousel-track img {
+            width: 100%;
+            /* 每张图片占满容器宽度 */
+            flex-shrink: 0;
+            /* 不允许缩小 */
+            height: 320px;
+            /* 固定高度 */
+            object-fit: cover;
+            /* 裁剪填充，保持比例 */
+        }
+
+        /* 轮播图左右切换箭头 */
+        .carousel-arrow {
+            position: absolute;
+            /* 绝对定位 */
+            top: 50%;
+            /* 垂直居中 */
+            transform: translateY(-50%);
+            /* 精确垂直居中 */
+            background: rgba(255, 255, 255, 0.7);
+            /* 半透明白色背景 */
+            border: none;
+            /* 无边框 */
+            font-size: 28px;
+            /* 箭头大小 */
+            width: 40px;
+            /* 宽度 */
+            height: 40px;
+            /* 高度 */
+            border-radius: 50%;
+            /* 圆形按钮 */
+            cursor: pointer;
+            /* 手型光标 */
+            z-index: 10;
+            /* 层级在图片之上 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            color: #333;
+            /* 箭头颜色 */
+            line-height: 40px;
+            /* 文字垂直居中 */
+            text-align: center;
+            /* 文字水平居中 */
+        }
+
+        /* 左箭头位置 */
+        .carousel-arrow.left {
+            left: 10px;
+        }
+
+        /* 右箭头位置 */
+        .carousel-arrow.right {
+            right: 10px;
+        }
+
+        /* 箭头悬浮效果 */
+        .carousel-arrow:hover {
+            background: rgba(255, 255, 255, 0.95);
+            /* 更亮的白色 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            /* 阴影 */
+        }
+
+        /* 轮播图底部指示器圆点容器 */
+        .carousel-dots {
+            position: absolute;
+            /* 绝对定位 */
+            bottom: 15px;
+            /* 距底部15px */
+            left: 50%;
+            /* 水平居中 */
+            transform: translateX(-50%);
+            /* 精确居中 */
+            display: flex;
+            /* 弹性布局 */
+            gap: 10px;
+            /* 圆点间距 */
+            z-index: 10;
+            /* 层级 */
+        }
+
+        /* 每个指示器圆点 */
+        .carousel-dots span {
+            width: 12px;
+            /* 圆点宽度 */
+            height: 12px;
+            /* 圆点高度 */
+            border-radius: 50%;
+            /* 圆形 */
+            background: rgba(255, 255, 255, 0.5);
+            /* 半透明白色 */
+            cursor: pointer;
+            /* 手型光标 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            border: 2px solid #fff;
+            /* 白色边框 */
+        }
+
+        /* 当前激活的指示器圆点 */
+        .carousel-dots span.active {
+            background: #fff;
+            /* 纯白色 */
+            transform: scale(1.3);
+            /* 放大30% */
+        }
+
+        /* ========== 导航栏 + 时间区域 ========== */
+        /* 导航栏外层容器：弹性布局，左右分布 */
+        .nav-wrapper {
+            display: flex;
+            /* 弹性布局 */
+            align-items: center;
+            /* 垂直居中 */
+            padding: 10px 25px;
+            /* 上下左右内边距 */
+            margin-bottom: 15px;
+            /* 底部外边距 */
+            flex-wrap: nowrap;
+            /* 导航栏不换行，时间始终在同一行最右侧 */
+            gap: 15px;
+            /* 间距 */
+        }
+
+        /* 导航菜单容器：弹性布局 */
+        .nav {
+            display: flex;
+            /* 弹性布局 */
+            gap: 35px;
+            /* 菜单之间间距 */
+            flex-wrap: wrap;
+            /* 小屏幕允许换行 */
+            justify-content: center;
+            /* 水平居中 */
+            flex-shrink: 1;
+            /* 允许收缩为时间让出空间 */
+            min-width: 0;
+            /* 允许flex子元素收缩到内容宽度以下 */
+        }
+
+        /* 导航链接样式 */
+        .nav a {
+            text-decoration: none;
+            /* 去除下划线 */
+            font-size: 18px;
+            /* 字体大小 */
+            color: #087ff5;
+            /* 蓝色 */
+            font-weight: bold;
+            /* 加粗 */
+            padding: 6px 14px;
+            /* 内边距 */
+            border-radius: 18px;
+            /* 圆角 */
+            transition: all 0.3s ease;
+            /* 过渡动画 */
+            position: relative;
+            /* 相对定位 */
+        }
+
+        /* 导航链接底部动画下划线 */
+        .nav a::after {
+            content: '';
+            /* 伪元素必须有content */
+            position: absolute;
+            /* 绝对定位 */
+            bottom: 0;
+            /* 底部对齐 */
+            left: 50%;
+            /* 从中间开始 */
+            width: 0;
+            /* 初始宽度0 */
+            height: 2px;
+            /* 下划线高度 */
+            background: red;
+            /* 红色 */
+            transition: all 0.3s ease;
+            /* 过渡动画 */
+            transform: translateX(-50%);
+            /* 居中偏移 */
+        }
+
+        /* 导航链接悬浮效果：变色、放大、下划线展开 */
+        .nav a:hover {
+            color: red;
+            /* 红色 */
+            font-size: 20px;
+            /* 放大 */
+        }
+
+        .nav a:hover::after {
+            width: 70%;
+            /* 下划线展开到70%宽度 */
+        }
+
+        /* 时间显示区域样式 */
+        #timeArea {
+            color: red;
+            /* 红色 */
+            font-size: 22px;
+            /* 字体大小 */
+            font-weight: bold;
+            /* 加粗 */
+            white-space: nowrap;
+            /* 时间不换行 */
+            margin-left: auto;
+            /* 始终推到导航栏最右侧 */
+            flex-shrink: 0;
+            /* 时间区域不缩小，永远保持完整显示在右侧 */
+        }
+
+        /* ========== 内嵌框架样式 ========== */
+        iframe {
+            width: 95%;
+            /* 宽度占父容器95% */
+            height: 540px;
+            /* 固定高度 */
+            border: none;
+            /* 无边框 */
+            display: block;
+            /* 块级元素 */
+            margin: 0 auto;
+            /* 水平居中 */
+            background: rgba(255, 255, 255, 0.75);
+            /* 半透明白色背景 */
+            border-radius: 10px;
+            /* 圆角 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            /* 阴影 */
+        }
+
+        /* ========== 底部栏样式（HTML5 footer标签） ========== */
+        footer {
+            position: fixed;
+            /* 固定在底部 */
+            bottom: 0;
+            /* 底部对齐 */
+            width: 100%;
+            /* 宽度100% */
+            text-align: center;
+            /* 文字居中 */
+            padding: 12px 0;
+            /* 上下内边距 */
+            font-size: 14px;
+            /* 字体大小 */
+            color: #0d7be9;
+            /* 蓝色文字 */
+            background: rgba(255, 255, 255, 0.9);
+            /* 半透明白色背景 */
+            backdrop-filter: blur(8px);
+            /* 背景模糊效果(CSS3) */
+            border-top: 2px solid rgba(13, 123, 233, 0.2);
+            /* 顶部边框 */
+            z-index: 100;
+            /* 确保在最上层 */
+        }
+
+        /* ========== 弹窗遮罩层（登录/注册共用） ========== */
+        .modal-overlay {
+            display: none;
+            /* 默认隐藏 */
+            position: fixed;
+            /* 固定定位 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            /* 半透明黑色遮罩 */
+            z-index: 999;
+            /* 最高层级 */
+            justify-content: center;
+            /* 水平居中 */
+            align-items: center;
+            /* 垂直居中 */
+        }
+
+        /* 弹窗显示状态 */
+        .modal-overlay.show {
+            display: flex;
+            /* 弹性布局显示 */
+        }
+
+        /* 弹窗内容盒子 */
+        .modal-box {
+            background: #fff;
+            /* 白色背景 */
+            border-radius: 16px;
+            /* 大圆角 */
+            padding: 35px 30px;
+            /* 内边距 */
+            width: 420px;
+            /* 固定宽度 */
+            max-width: 92vw;
+            /* 小屏幕最大宽度 */
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            /* 大阴影 */
+            position: relative;
+            /* 相对定位 */
+            animation: modalIn 0.35s ease;
+            /* 弹出动画(CSS3) */
+        }
+
+        /* 弹窗弹出动画：从上方滑入+透明度变化 */
+        @keyframes modalIn {
+            from {
+                transform: translateY(-60px);
+                /* 起始位置向上偏移 */
+                opacity: 0;
+                /* 起始完全透明 */
+            }
+
+            to {
+                transform: translateY(0);
+                /* 结束位置正常 */
+                opacity: 1;
+                /* 完全不透明 */
+            }
+        }
+
+        /* 弹窗标题 */
+        .modal-box h2 {
+            text-align: center;
+            /* 居中 */
+            color: #0d7be9;
+            /* 蓝色 */
+            margin-bottom: 25px;
+            /* 底部外边距 */
+            font-size: 24px;
+            /* 字体大小 */
+        }
+
+        /* 弹窗关闭按钮（X） */
+        .modal-close {
+            position: absolute;
+            /* 绝对定位 */
+            top: 12px;
+            right: 18px;
+            font-size: 26px;
+            /* X的大小 */
+            cursor: pointer;
+            /* 手型光标 */
+            color: #999;
+            /* 灰色 */
+            transition: color 0.2s;
+            /* 颜色过渡 */
+            background: none;
+            /* 无背景 */
+            border: none;
+            /* 无边框 */
+        }
+
+        /* 关闭按钮悬浮效果 */
+        .modal-close:hover {
+            color: #e74c3c;
+            /* 红色 */
+        }
+
+        /* 表单组：每个输入项的外层容器 */
+        .form-group {
+            margin-bottom: 18px;
+            /* 底部外边距 */
+        }
+
+        /* 表单标签 */
+        .form-group label {
+            display: block;
+            /* 块级元素独占一行 */
+            margin-bottom: 6px;
+            /* 底部外边距 */
+            font-weight: bold;
+            /* 加粗 */
+            color: #333;
+            /* 深灰色 */
+            font-size: 14px;
+            /* 字体大小 */
+        }
+
+        /* 表单输入框统一样式 */
+        .form-group input {
+            width: 100%;
+            /* 宽度100% */
+            padding: 10px 14px;
+            /* 内边距 */
+            border: 2px solid #e0e0e0;
+            /* 浅灰边框 */
+            border-radius: 8px;
+            /* 圆角 */
+            font-size: 15px;
+            /* 字体大小 */
+            transition: border-color 0.3s, box-shadow 0.3s;
+            /* 边框和阴影过渡 */
+            outline: none;
+            /* 去除默认轮廓 */
+        }
+
+        /* 输入框聚焦效果 */
+        .form-group input:focus {
+            border-color: #0d7be9;
+            /* 蓝色边框 */
+            box-shadow: 0 0 0 3px rgba(13, 123, 233, 0.15);
+            /* 蓝色光晕 */
+        }
+
+        /* 校验提示信息文字 */
+        .form-group .hint {
+            font-size: 12px;
+            /* 小字体 */
+            color: #999;
+            /* 灰色 */
+            margin-top: 4px;
+            /* 上外边距 */
+        }
+
+        /* 校验错误信息文字 */
+        .form-group .error {
+            font-size: 12px;
+            /* 小字体 */
+            color: #e74c3c;
+            /* 红色 */
+            margin-top: 4px;
+            /* 上外边距 */
+            display: none;
+            /* 默认隐藏 */
+        }
+
+        /* ========== 密码输入框可见/不可见切换 ========== */
+        /* 密码输入框外层容器：相对定位，用于放置眼睛按钮 */
+        .password-wrapper {
+            position: relative;
+            /* 相对定位，作为眼睛按钮的定位参考 */
+            display: flex;
+            /* 弹性布局 */
+            align-items: center;
+            /* 垂直居中 */
+        }
+
+        /* 密码输入框：右侧留出眼睛按钮的空间 */
+        .password-wrapper input {
+            padding-right: 42px;
+            /* 右侧内边距，防止文字被眼睛按钮遮挡 */
+        }
+
+        /* 眼睛切换按钮：绝对定位在输入框内部右侧 */
+        .toggle-pwd {
+            position: absolute;
+            /* 绝对定位 */
+            right: 8px;
+            /* 距右侧8px */
+            top: 50%;
+            /* 垂直居中 */
+            transform: translateY(-50%);
+            /* 精确居中 */
+            background: none;
+            /* 无背景 */
+            border: none;
+            /* 无边框 */
+            font-size: 20px;
+            /* 眼睛图标大小 */
+            cursor: pointer;
+            /* 手型光标 */
+            color: #999;
+            /* 灰色 */
+            padding: 4px;
+            /* 内边距 */
+            line-height: 1;
+            /* 行高 */
+            transition: color 0.2s;
+            /* 颜色过渡 */
+            z-index: 2;
+            /* 确保在输入框之上 */
+        }
+
+        /* 眼睛按钮悬浮效果 */
+        .toggle-pwd:hover {
+            color: #0d7be9;
+            /* 蓝色 */
+        }
+
+        /* 隐藏浏览器（Edge/Chrome）自带的密码可见切换图标，避免双眼睛 */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+            /* 隐藏IE/Edge自带的眼睛 */
+        }
+
+        /* 弹窗底部按钮容器 */
+        .modal-btns {
+            display: flex;
+            /* 弹性布局 */
+            justify-content: center;
+            /* 居中 */
+            gap: 15px;
+            /* 按钮间距 */
+            margin-top: 25px;
+            /* 上外边距 */
+        }
+
+        /* 弹窗按钮统一样式 */
+        .modal-btns button {
+            padding: 10px 35px;
+            /* 内边距 */
+            font-size: 16px;
+            /* 字体大小 */
+            border: none;
+            /* 无边框 */
+            border-radius: 22px;
+            /* 大圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            font-weight: bold;
+            /* 加粗 */
+        }
+
+        /* 确认提交按钮 */
+        .modal-btns .btn-submit {
+            background: #0d7be9;
+            /* 蓝色背景 */
+            color: #fff;
+            /* 白色文字 */
+        }
+
+        /* 确认按钮悬浮效果 */
+        .modal-btns .btn-submit:hover {
+            background: #065bb5;
+            /* 深蓝色 */
+            box-shadow: 0 4px 12px rgba(13, 123, 233, 0.4);
+            /* 阴影 */
+        }
+
+        /* 重置/取消按钮 */
+        .modal-btns .btn-reset {
+            background: #f0f0f0;
+            /* 浅灰背景 */
+            color: #666;
+            /* 灰色文字 */
+        }
+
+        /* 重置按钮悬浮效果 */
+        .modal-btns .btn-reset:hover {
+            background: #e0e0e0;
+            /* 深灰 */
+        }
+
+        /* 弹窗底部切换文字链接 */
+        .modal-switch {
+            text-align: center;
+            /* 居中 */
+            margin-top: 18px;
+            /* 上外边距 */
+            font-size: 14px;
+            /* 字体大小 */
+            color: #666;
+            /* 灰色 */
+        }
+
+        /* 切换链接样式 */
+        .modal-switch a {
+            color: #0d7be9;
+            /* 蓝色 */
+            cursor: pointer;
+            /* 手型光标 */
+            text-decoration: underline;
+            /* 下划线 */
+            font-weight: bold;
+            /* 加粗 */
+        }
+
+        /* ========== 响应式布局：手机端适配 ========== */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+                /* 缩小标题 */
+                margin: 15px 0 5px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+                /* 缩小副标题 */
+            }
+
+            .carousel-track img {
+                height: 180px;
+                /* 缩小轮播图高度 */
+            }
+
+            .nav {
+                gap: 10px;
+                /* 缩小菜单间距 */
+            }
+
+            .nav a {
+                font-size: 14px;
+                /* 缩小字体 */
+                padding: 4px 10px;
+                /* 缩小内边距 */
+            }
+
+            .nav a:hover {
+                font-size: 16px;
+                /* 缩小悬浮字体 */
+            }
+
+            #timeArea {
+                font-size: 16px;
+                /* 缩小时间字体 */
+            }
+
+            .user-actions button {
+                font-size: 13px;
+                /* 缩小按钮字体 */
+                padding: 6px 14px;
+                /* 缩小按钮内边距 */
+            }
+
+            iframe {
+                width: 98%;
+                /* 更宽的占比例 */
+            }
+
+            .modal-box {
+                padding: 25px 18px;
+                /* 缩小弹窗内边距 */
+            }
+
+            footer {
+                font-size: 12px;
+                /* 缩小底部文字 */
+                padding: 8px 0;
+                /* 缩小内边距 */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ==================== 页面主标题区域 ==================== -->
+    <!-- 网站大标题，主题为"个人学习网站（韦兰珍）" -->
+    <h1>📚 个人学习网站（韦兰珍）</h1>
+    <!-- 副标题：学校学院信息 -->
+    <p class="subtitle">闽江大学 计算机与大数据学院 人工智能</p>
+
+    <!-- ==================== 登录/注册按钮区域 ==================== -->
+    <div class="user-actions">
+        <!-- 登录按钮：点击打开登录弹窗 -->
+        <button id="loginBtn" onclick="openModal('login')">🔑 登录</button>
+        <!-- 注册按钮：点击打开注册弹窗 -->
+        <button id="registerBtn" onclick="openModal('register')">📝 注册</button>
+        <!-- 登录成功后显示的用户名 -->
+        <span id="userInfo"></span>
+        <!-- 退出登录按钮：登录成功后显示 -->
+        <button id="logoutBtn" onclick="logout()">🚪 退出登录</button>
+    </div>
+
+    <!-- ==================== 轮播图区域 ==================== -->
+    <!-- 使用纯CSS+JS实现的图片轮播，满足"轮播图功能"要求（5分） -->
+    <div class="carousel-container" id="carousel">
+        <!-- 图片滑动轨道 -->
+        <div class="carousel-track" id="carouselTrack">
+            <!-- 轮播图图片：使用课程相关图片 -->
+            <img src="imgs/web.jpg" alt="Web技术基础">
+            <img src="imgs/Java.jpg" alt="Java语言">
+            <img src="imgs/database.jpg" alt="数据库原理">
+            <img src="imgs/DiscreteMath.jpg" alt="离散数学">
+            <img src="imgs/computer.jpg" alt="计算机组成原理">
+        </div>
+        <!-- 左箭头：点击切换到上一张 -->
+        <button class="carousel-arrow left" onclick="prevSlide()">◀</button>
+        <!-- 右箭头：点击切换到下一张 -->
+        <button class="carousel-arrow right" onclick="nextSlide()">▶</button>
+        <!-- 底部指示器圆点：显示当前是第几张 -->
+        <div class="carousel-dots" id="carouselDots"></div>
+    </div>
+
+    <!-- ==================== 导航栏 + 时间显示 ==================== -->
+    <!-- 导航在左，实时时间在右，使用Flex弹性布局 -->
+    <div class="nav-wrapper">
+        <!-- 导航菜单：点击后在iframe中加载对应页面 -->
+        <div class="nav">
+            <a href="introduce.html" target="mainFrame">📖 课程简介</a>
+            <a href="schedule.html" target="mainFrame">📅 课表</a>
+            <a href="book.html" target="mainFrame">📚 教材</a>
+            <a href="memo.html" target="mainFrame">📝 备忘录</a>
+            <a href="chart.html" target="mainFrame">📊 Echarts</a>
+            <!-- 新增页面1：记账本，使用HTML5 header标签 -->
+            <a href="account.html" target="mainFrame">💰 记账本</a>
+            <!-- 新增页面2：阅读清单，使用HTML5 article标签 -->
+            <a href="reading.html" target="mainFrame">📋 阅读清单</a>
+        </div>
+        <!-- 实时时间显示容器 -->
+        <div id="timeArea"></div>
+    </div>
+
+    <!-- ==================== 内嵌框架 ==================== -->
+    <!-- iframe用于在不刷新主页的情况下加载子页面 -->
+    <iframe name="mainFrame" src="introduce.html"></iframe>
+
+    <!-- ==================== 底部栏（HTML5 footer标签） ==================== -->
+    <footer>
+        &copy; 闽江大学 计算机与大数据学院 &trade; 人工智能<br>
+        联系人：韦兰珍 &nbsp;&nbsp; 学号：3232707145
+    </footer>
+
+    <!-- ==================== 登录弹窗 ==================== -->
+    <!-- 遮罩层：点击空白处可关闭弹窗 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <!-- 关闭按钮 -->
+            <button class="modal-close" onclick="closeModal('login')">&times;</button>
+            <!-- 弹窗标题 -->
+            <h2>🔑 用户登录</h2>
+            <!-- 登录表单 -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="loginUsername" placeholder="请输入用户名">
+                    <p class="hint">6-20位，字母开头，由字母、数字或下划线组成</p>
+                    <p class="error" id="loginUserError">用户名格式不正确！</p>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <!-- 密码输入框外层容器：放置眼睛切换按钮 -->
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" placeholder="请输入密码">
+                        <!-- 眼睛按钮：点击切换密码可见/不可见 -->
+                        <button type="button" class="toggle-pwd" onclick="togglePassword('loginPassword', this)"
+                            title="显示/隐藏密码">👁</button>
+                    </div>
+                    <p class="hint">8-20位，必须包含大写字母、小写字母、数字和特殊字符（#$@!*）</p>
+                    <p class="error" id="loginPassError">密码格式不正确！</p>
+                </div>
+                <!-- 按钮组 -->
+                <div class="modal-btns">
+                    <button type="button" class="btn-submit" onclick="doLogin()">登 录</button>
+                    <button type="reset" class="btn-reset">重 置</button>
+                </div>
+            </form>
+            <!-- 切换到注册弹窗的链接 -->
+            <div class="modal-switch">
+                还没有账号？<a onclick="switchModal('login','register')">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 注册弹窗 ==================== -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal('register')">&times;</button>
+            <h2>📝 用户注册</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="regUsername" placeholder="请设置用户名">
+                    <p class="hint">6-20位，必须以字母开头，由字母、数字或下划线组成</p>
+                    <p class="error" id="regUserError">用户名格式不正确！必须字母开头，6-20位，仅含字母数字下划线</p>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <!-- 密码输入框外层容器：放置眼睛切换按钮 -->
+                    <div class="password-wrapper">
+                        <input type="password" id="regPassword" placeholder="请设置密码">
+                        <!-- 眼睛按钮：点击切换密码可见/不可见 -->
+                        <button type="button" class="toggle-pwd" onclick="togglePassword('regPassword', this)"
+                            title="显示/隐藏密码">👁</button>
+                    </div>
+                    <p class="hint">8-20位，必须包含大写字母、小写字母、数字和特殊字符（#$@!*）</p>
+                    <p class="error" id="regPassError">密码格式不正确！8-20位，需包含大小写字母+数字+特殊字符</p>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <!-- 密码输入框外层容器：放置眼睛切换按钮 -->
+                    <div class="password-wrapper">
+                        <input type="password" id="regPassword2" placeholder="请再次输入密码">
+                        <!-- 眼睛按钮：点击切换密码可见/不可见 -->
+                        <button type="button" class="toggle-pwd" onclick="togglePassword('regPassword2', this)"
+                            title="显示/隐藏密码">👁</button>
+                    </div>
+                    <p class="error" id="regPass2Error">两次输入的密码不一致！</p>
+                </div>
+                <div class="modal-btns">
+                    <button type="button" class="btn-submit" onclick="doRegister()">注 册</button>
+                    <button type="reset" class="btn-reset">重 置</button>
+                </div>
+            </form>
+            <div class="modal-switch">
+                已有账号？<a onclick="switchModal('register','login')">去登录</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 全局JavaScript逻辑 ==================== -->
+    <script>
+        // ========== 登录状态管理 ==========
+        // 从localStorage读取当前登录用户，若无则为null
+        let currentUser = localStorage.getItem('currentUser') || null;
+        // 从localStorage读取所有已注册用户，若无则为空对象
+        let users = JSON.parse(localStorage.getItem('users') || '{}');
+
+        // 页面加载时根据登录状态更新UI
+        updateLoginUI();
+
+        /**
+         * 更新登录状态UI
+         * 如果已登录：显示用户名、隐藏登录/注册按钮、显示退出按钮
+         * 如果未登录：显示登录/注册按钮、隐藏用户信息和退出按钮
+         */
+        function updateLoginUI() {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const userInfo = document.getElementById('userInfo');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (currentUser) {
+                // 已登录状态
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                userInfo.style.display = 'inline';
+                userInfo.textContent = '👤 欢迎，' + currentUser;
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                // 未登录状态
+                loginBtn.style.display = 'inline-block';
+                registerBtn.style.display = 'inline-block';
+                userInfo.style.display = 'none';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        /**
+         * 退出登录
+         * 清除登录状态并刷新UI
+         */
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            updateLoginUI();
+            alert('已成功退出登录！');
+        }
+
+        // ========== 弹窗控制函数 ==========
+        /**
+         * 打开指定的弹窗（登录或注册）
+         * @param {string} type - 'login' 或 'register'
+         */
+        function openModal(type) {
+            if (type === 'login') {
+                document.getElementById('loginModal').classList.add('show');
+                // 清空登录表单
+                document.getElementById('loginForm').reset();
+                // 隐藏之前的错误提示
+                document.getElementById('loginUserError').style.display = 'none';
+                document.getElementById('loginPassError').style.display = 'none';
+            } else {
+                document.getElementById('registerModal').classList.add('show');
+                // 清空注册表单
+                document.getElementById('registerForm').reset();
+                // 隐藏之前的错误提示
+                document.getElementById('regUserError').style.display = 'none';
+                document.getElementById('regPassError').style.display = 'none';
+                document.getElementById('regPass2Error').style.display = 'none';
+            }
+        }
+
+        /**
+         * 关闭指定的弹窗
+         * @param {string} type - 'login' 或 'register'
+         */
+        function closeModal(type) {
+            if (type === 'login') {
+                document.getElementById('loginModal').classList.remove('show');
+            } else {
+                document.getElementById('registerModal').classList.remove('show');
+            }
+        }
+
+        /**
+         * 在登录和注册弹窗之间切换
+         * @param {string} from - 当前弹窗类型
+         * @param {string} to - 目标弹窗类型
+         */
+        function switchModal(from, to) {
+            closeModal(from);
+            openModal(to);
+        }
+
+        // 点击弹窗遮罩空白处关闭弹窗
+        document.getElementById('loginModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal('login');
+        });
+        document.getElementById('registerModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal('register');
+        });
+
+        // ========== 表单校验函数 ==========
+        /**
+         * 校验用户名格式
+         * 规则：6-20位，必须以字母开头，由字母、数字或下划线组成
+         * @param {string} username - 待校验的用户名
+         * @returns {boolean} 是否合法
+         */
+        function validateUsername(username) {
+            // 正则：^[a-zA-Z]以字母开头，[a-zA-Z0-9_]{5,19}$剩余5-19位字母数字下划线，总长6-20
+            const reg = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
+            return reg.test(username);
+        }
+
+        /**
+         * 校验密码格式
+         * 规则：8-20位，必须包含大写字母、小写字母、数字、特殊字符(#$@!*)，无空格
+         * @param {string} password - 待校验的密码
+         * @returns {boolean} 是否合法
+         */
+        function validatePassword(password) {
+            // 长度8-20位
+            if (password.length < 8 || password.length > 20) return false;
+            // 不能包含空格
+            if (/\s/.test(password)) return false;
+            // 必须包含至少一个大写字母
+            if (!/[A-Z]/.test(password)) return false;
+            // 必须包含至少一个小写字母
+            if (!/[a-z]/.test(password)) return false;
+            // 必须包含至少一个数字
+            if (!/[0-9]/.test(password)) return false;
+            // 必须包含至少一个特殊字符
+            if (!/[#$@!*]/.test(password)) return false;
+            return true;
+        }
+
+        /**
+         * 校验密码是否包含用户名（不区分大小写）
+         * @param {string} password - 密码
+         * @param {string} username - 用户名
+         * @returns {boolean} 是否包含用户名
+         */
+        function passwordContainsUser(password, username) {
+            return password.toLowerCase().includes(username.toLowerCase());
+        }
+
+        // ========== 密码可见/不可见切换 ==========
+        /**
+         * 切换密码输入框的可见/不可见状态
+         * @param {string} inputId - 密码输入框的id
+         * @param {HTMLElement} btn - 被点击的眼睛按钮
+         */
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                // 切换为明文显示
+                input.type = 'text';
+                btn.textContent = '👁‍🗨'; // 闭眼图标表示密码可见
+            } else {
+                // 切换回密码模式（圆点隐藏）
+                input.type = 'password';
+                btn.textContent = '👁'; // 睁眼图标表示密码隐藏
+            }
+        }
+
+        /**
+         * 实时检测密码中是否包含空格，显示/隐藏警告提示
+         * @param {HTMLElement} input - 密码输入框元素
+         * @param {string} warnId - 空格警告提示元素的id
+         */
+        // ========== 登录逻辑 ==========
+        /**
+         * 执行登录操作
+         * 校验表单输入 → 验证用户是否存在 → 验证密码是否正确
+         */
+        function doLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const userError = document.getElementById('loginUserError');
+            const passError = document.getElementById('loginPassError');
+
+            // 隐藏之前的错误提示
+            userError.style.display = 'none';
+            passError.style.display = 'none';
+
+            // 校验用户名格式
+            if (!validateUsername(username)) {
+                userError.style.display = 'block';
+                return;
+            }
+
+            // 校验密码格式
+            if (!validatePassword(password)) {
+                passError.textContent = '密码格式不正确！8-20位，需包含大小写字母+数字+特殊字符';
+                passError.style.display = 'block';
+                return;
+            }
+
+            // 重新读取用户数据
+            users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            // 检查用户是否存在
+            if (!users[username]) {
+                passError.textContent = '该用户不存在，请先注册！';
+                passError.style.display = 'block';
+                return;
+            }
+
+            // 验证密码是否正确
+            if (users[username] !== password) {
+                passError.textContent = '密码错误，请重试！';
+                passError.style.display = 'block';
+                return;
+            }
+
+            // 登录成功
+            localStorage.setItem('currentUser', username);
+            currentUser = username;
+            updateLoginUI();
+            closeModal('login');
+            alert('✅ 登录成功！欢迎回来，' + username + '！');
+        }
+
+        // ========== 注册逻辑 ==========
+        /**
+         * 执行注册操作
+         * 校验表单 → 检查用户是否已存在 → 保存用户信息
+         */
+        function doRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const password2 = document.getElementById('regPassword2').value;
+            const userError = document.getElementById('regUserError');
+            const passError = document.getElementById('regPassError');
+            const pass2Error = document.getElementById('regPass2Error');
+
+            // 隐藏之前的错误提示
+            userError.style.display = 'none';
+            passError.style.display = 'none';
+            pass2Error.style.display = 'none';
+
+            // 校验用户名格式
+            if (!validateUsername(username)) {
+                userError.style.display = 'block';
+                return;
+            }
+
+            // 校验密码格式
+            if (!validatePassword(password)) {
+                passError.textContent = '密码格式不正确！8-20位，需包含大小写字母+数字+特殊字符';
+                passError.style.display = 'block';
+                return;
+            }
+
+            // 校验密码是否包含用户名
+            if (passwordContainsUser(password, username)) {
+                passError.textContent = '密码不能包含用户名！';
+                passError.style.display = 'block';
+                return;
+            }
+
+            // 校验两次密码是否一致
+            if (password !== password2) {
+                pass2Error.style.display = 'block';
+                return;
+            }
+
+            // 重新读取用户数据
+            users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            // 检查用户名是否已被注册
+            if (users[username]) {
+                userError.textContent = '该用户名已被注册，请更换！';
+                userError.style.display = 'block';
+                return;
+            }
+
+            // 保存新用户
+            users[username] = password;
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // 注册成功，自动登录
+            localStorage.setItem('currentUser', username);
+            currentUser = username;
+            updateLoginUI();
+            closeModal('register');
+            alert('✅ 注册成功！欢迎你，' + username + '！');
+        }
+
+        // ========== 轮播图逻辑 ==========
+        let currentSlide = 0; // 当前显示的幻灯片索引
+        const totalSlides = 5; // 幻灯片总数（5张图片）
+        let carouselTimer = null; // 自动播放定时器
+
+        /**
+         * 初始化轮播图：渲染底部指示圆点并启动自动播放
+         */
+        function initCarousel() {
+            const dotsContainer = document.getElementById('carouselDots');
+            // 根据幻灯片总数动态生成指示圆点
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('span');
+                // 当前激活的圆点添加active样式
+                if (i === currentSlide) dot.classList.add('active');
+                // 点击圆点跳转到对应幻灯片
+                dot.onclick = function () { goToSlide(i); };
+                dotsContainer.appendChild(dot);
+            }
+            // 启动自动播放
+            startAutoPlay();
+        }
+
+        /**
+         * 跳转到指定索引的幻灯片
+         * @param {number} index - 目标幻灯片索引
+         */
+        function goToSlide(index) {
+            currentSlide = index;
+            // 通过translateX平移整个轨道实现切换
+            const track = document.getElementById('carouselTrack');
+            track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+            // 更新指示圆点的激活状态
+            updateDots();
+            // 重置自动播放计时器
+            resetAutoPlay();
+        }
+
+        /**
+         * 切换到上一张幻灯片
+         */
+        function prevSlide() {
+            // 边界处理：第一张→最后一张
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            goToSlide(currentSlide);
+        }
+
+        /**
+         * 切换到下一张幻灯片
+         */
+        function nextSlide() {
+            // 边界处理：最后一张→第一张
+            currentSlide = (currentSlide + 1) % totalSlides;
+            goToSlide(currentSlide);
+        }
+
+        /**
+         * 更新底部指示圆点的激活状态
+         */
+        function updateDots() {
+            const dots = document.getElementById('carouselDots').children;
+            for (let i = 0; i < dots.length; i++) {
+                if (i === currentSlide) {
+                    dots[i].classList.add('active');
+                } else {
+                    dots[i].classList.remove('active');
+                }
+            }
+        }
+
+        /**
+         * 启动轮播图自动播放（每3秒切换一张）
+         */
+        function startAutoPlay() {
+            carouselTimer = setInterval(nextSlide, 3000);
+        }
+
+        /**
+         * 重置自动播放计时器（手动切换后重新计时）
+         */
+        function resetAutoPlay() {
+            clearInterval(carouselTimer);
+            startAutoPlay();
+        }
+
+        // ========== 实时时间更新 ==========
+        /**
+         * 更新时间显示：根据屏幕宽度判断设备类型，显示不同格式时间
+         * 移动端（安卓或苹果手机）：仅显示 时:分:秒
+         * 电脑端：显示 年-月-日 时:分:秒
+         */
+        function updateTime() {
+            let now = new Date();
+            let timeStr;
+            // 通过User-Agent判断是否为移动端（安卓或苹果设备）
+            let ua = navigator.userAgent;
+            let isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+            if (isMobile) {
+                // 移动端：仅显示时间，不显示日期
+                timeStr = now.format("hh:mm:ss");
+            } else {
+                // 电脑端：显示日期+时间
+                timeStr = now.format("yyyy-MM-dd hh:mm:ss");
+            }
+            // 将时间字符串渲染到页面
+            document.getElementById("timeArea").innerText = timeStr;
+        }
+        // 定时器：每1000毫秒（1秒）执行一次updateTime
+        setInterval(updateTime, 1000);
+        // 页面加载时立即执行一次
+        updateTime();
+
+        // ========== iframe自适应高度 ==========
+        /**
+         * 自动设置内嵌框架高度：占满屏幕剩余空间
+         */
+        function autoIframe() {
+            let iframe = document.getElementsByName("mainFrame")[0];
+            iframe.style.height = (window.innerHeight - 420) + "px";
+        }
+        // 页面加载完成后执行
+        window.onload = function () {
+            autoIframe();
+            initCarousel(); // 初始化轮播图
+        };
+        // 窗口大小改变时重新计算iframe高度
+        window.onresize = autoIframe;
+    </script>
+
+</body>
+
+</html>

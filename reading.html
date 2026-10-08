@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<!-- HTML5 文档类型声明 -->
+<html lang="zh-CN">
+<!-- 设置网页语言为中文 -->
+
+<head>
+    <!-- 设置文档字符编码为UTF-8，防止中文乱码 -->
+    <meta charset="UTF-8">
+    <!-- 设置视口，适配移动端设备 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 网页标题 -->
+    <title>阅读清单</title>
+    <style>
+        /* ========== 全局样式初始化 ========== */
+        * {
+            margin: 0;
+            /* 清除默认外边距 */
+            padding: 0;
+            /* 清除默认内边距 */
+            box-sizing: border-box;
+            /* 统一盒子模型 */
+        }
+
+        /* 页面整体样式 */
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            /* 字体 */
+            background: transparent;
+            /* 透明背景，与其他iframe页面一致 */
+            min-height: 100vh;
+            /* 最小高度占满视口 */
+            padding: 20px;
+            /* 内边距 */
+        }
+
+        /* ========== 页面头部（HTML5 header标签） ========== */
+        /* 使用HTML5语义化标签header，满足HTML5标签要求 */
+        header {
+            text-align: center;
+            /* 水平居中 */
+            margin-bottom: 30px;
+            /* 底部外边距 */
+            padding: 25px 0 20px;
+            /* 上下内边距 */
+            border-bottom: 3px solid #667eea;
+            /* 紫色底部分隔线 */
+        }
+
+        /* 头部标题 */
+        header h2 {
+            color: #333;
+            /* 深灰色 */
+            font-size: 28px;
+            /* 字体大小 */
+            margin-bottom: 8px;
+            /* 底部外边距 */
+        }
+
+        /* 头部副标题 */
+        header p {
+            color: #888;
+            /* 灰色 */
+            font-size: 14px;
+            /* 字体大小 */
+        }
+
+        /* ========== 添加书籍表单区域 ========== */
+        /* 使用Flex布局的表单容器 */
+        .add-form {
+            display: flex;
+            /* 弹性布局 */
+            flex-wrap: wrap;
+            /* 允许换行 */
+            gap: 12px;
+            /* 间距 */
+            justify-content: center;
+            /* 水平居中 */
+            align-items: center;
+            /* 垂直居中 */
+            margin-bottom: 30px;
+            /* 底部外边距 */
+            padding: 20px;
+            /* 内边距 */
+            background: #fff;
+            /* 白色背景 */
+            border-radius: 16px;
+            /* 圆角 */
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            /* 阴影 */
+        }
+
+        /* 表单输入框统一样式 */
+        .add-form input {
+            padding: 10px 15px;
+            /* 内边距 */
+            border: 2px solid #e8e8e8;
+            /* 浅灰边框 */
+            border-radius: 10px;
+            /* 圆角 */
+            font-size: 14px;
+            /* 字体大小 */
+            transition: border-color 0.3s, box-shadow 0.3s;
+            /* 过渡动画 */
+            outline: none;
+            /* 去除默认轮廓 */
+            font-family: inherit;
+            /* 继承父字体 */
+        }
+
+        /* 输入框聚焦效果 */
+        .add-form input:focus {
+            border-color: #667eea;
+            /* 紫色边框 */
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+            /* 紫色光晕 */
+        }
+
+        /* 书名输入框稍宽 */
+        .add-form input[name="title"] {
+            width: 250px;
+            /* 固定宽度 */
+        }
+
+        /* 作者输入框 */
+        .add-form input[name="author"] {
+            width: 180px;
+            /* 固定宽度 */
+        }
+
+        /* 分类下拉框 */
+        .add-form select {
+            padding: 10px 15px;
+            /* 内边距 */
+            border: 2px solid #e8e8e8;
+            /* 浅灰边框 */
+            border-radius: 10px;
+            /* 圆角 */
+            font-size: 14px;
+            /* 字体大小 */
+            outline: none;
+            /* 去除默认轮廓 */
+            background: #fff;
+            /* 白色背景 */
+            cursor: pointer;
+            /* 手型光标 */
+        }
+
+        /* 提交按钮（添加/更新） */
+        .add-form .btn-submit {
+            padding: 10px 28px;
+            /* 内边距 */
+            font-size: 15px;
+            /* 字体大小 */
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            /* 渐变紫色(CSS3) */
+            color: #fff;
+            /* 白色文字 */
+            border: none;
+            /* 无边框 */
+            border-radius: 22px;
+            /* 大圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            font-weight: bold;
+            /* 加粗 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            /* 阴影 */
+        }
+
+        /* 提交按钮悬浮效果 */
+        .add-form .btn-submit:hover {
+            transform: translateY(-2px);
+            /* 上移2px */
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+            /* 更强的阴影 */
+        }
+
+        /* 取消编辑按钮：默认隐藏 */
+        .add-form .btn-cancel {
+            padding: 10px 20px;
+            /* 内边距 */
+            font-size: 15px;
+            /* 字体大小 */
+            background: #f0f0f0;
+            /* 浅灰背景 */
+            color: #666;
+            /* 灰色文字 */
+            border: none;
+            /* 无边框 */
+            border-radius: 22px;
+            /* 大圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            font-weight: bold;
+            /* 加粗 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            display: none;
+            /* 默认隐藏，编辑模式下显示 */
+        }
+
+        /* 取消按钮悬浮效果 */
+        .add-form .btn-cancel:hover {
+            background: #e0e0e0;
+            /* 深一点的灰色 */
+        }
+
+        /* 表单按钮组 */
+        .form-btns {
+            display: flex;
+            /* 弹性布局 */
+            gap: 10px;
+            /* 按钮间距 */
+        }
+
+        /* ========== 统计信息栏 ========== */
+        .stats {
+            text-align: center;
+            /* 居中 */
+            margin-bottom: 20px;
+            /* 底部外边距 */
+            color: #888;
+            /* 灰色 */
+            font-size: 14px;
+            /* 字体大小 */
+        }
+
+        /* 统计数字加粗 */
+        .stats strong {
+            color: #667eea;
+            /* 紫色 */
+            font-size: 18px;
+            /* 更大字号 */
+        }
+
+        /* ========== 书籍卡片网格 ========== */
+        /* 使用Flex弹性布局，自动换行，居中 */
+        .book-grid {
+            display: flex;
+            /* 弹性布局 */
+            flex-wrap: wrap;
+            /* 自动换行 */
+            gap: 25px;
+            /* 卡片间距 */
+            justify-content: center;
+            /* 水平居中 */
+            padding: 0 10px;
+            /* 左右内边距 */
+        }
+
+        /* ========== 单本书卡片（HTML5 article标签） ========== */
+        /* 使用HTML5语义化标签article，每本书作为一个独立的文章单元 */
+        article.book-card {
+            background: #fff;
+            /* 白色背景 */
+            border-radius: 16px;
+            /* 圆角 */
+            padding: 0 0 18px 0;
+            /* 上0 右0 下18px 左0 */
+            width: 260px;
+            /* 固定宽度 */
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            /* 阴影 */
+            transition: all 0.35s ease;
+            /* 过渡动画(CSS3) */
+            overflow: hidden;
+            /* 溢出隐藏（使顶部色条圆角生效） */
+            display: flex;
+            /* 弹性布局 */
+            flex-direction: column;
+            /* 垂直排列子元素 */
+        }
+
+        /* 卡片悬浮效果(CSS3)：上浮+阴影增强 */
+        article.book-card:hover {
+            transform: translateY(-8px);
+            /* 向上浮动8px */
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+            /* 大阴影 */
+        }
+
+        /* 卡片顶部色条（按分类着色） */
+        article.book-card .card-top {
+            height: 8px;
+            /* 色条高度 */
+            background: #667eea;
+            /* 默认紫色 */
+        }
+
+        /* 不同分类的颜色(CSS3) */
+        article.book-card.tech .card-top {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            /* 技术类：紫色渐变 */
+        }
+
+        article.book-card.literature .card-top {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+            /* 文学类：粉色渐变 */
+        }
+
+        article.book-card.history .card-top {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            /* 历史类：蓝色渐变 */
+        }
+
+        article.book-card.philosophy .card-top {
+            background: linear-gradient(90deg, #43e97b, #38f9d7);
+            /* 哲学类：绿色渐变 */
+        }
+
+        article.book-card.other .card-top {
+            background: linear-gradient(90deg, #fa709a, #fee140);
+            /* 其他类：橙黄渐变 */
+        }
+
+        /* 卡片内容区域 */
+        article.book-card .card-body {
+            padding: 20px 18px;
+            /* 内边距 */
+            flex: 1;
+            /* 占满剩余高度 */
+        }
+
+        /* 书名 */
+        article.book-card .card-body h3 {
+            font-size: 18px;
+            /* 字体大小 */
+            color: #333;
+            /* 深灰色 */
+            margin-bottom: 6px;
+            /* 底部外边距 */
+        }
+
+        /* 作者 */
+        article.book-card .card-body .author {
+            font-size: 13px;
+            /* 字体大小 */
+            color: #999;
+            /* 灰色 */
+            margin-bottom: 4px;
+            /* 底部外边距 */
+        }
+
+        /* 分类标签 */
+        article.book-card .card-body .category {
+            display: inline-block;
+            /* 行内块 */
+            font-size: 12px;
+            /* 字体大小 */
+            padding: 3px 12px;
+            /* 内边距 */
+            background: #f0f0ff;
+            /* 淡紫背景 */
+            color: #667eea;
+            /* 紫色文字 */
+            border-radius: 12px;
+            /* 圆角 */
+            margin-bottom: 10px;
+            /* 底部外边距 */
+        }
+
+        /* 读书状态标签 */
+        article.book-card .card-body .status-tag {
+            display: inline-block;
+            /* 行内块 */
+            font-size: 12px;
+            /* 字体大小 */
+            padding: 3px 10px;
+            /* 内边距 */
+            border-radius: 12px;
+            /* 圆角 */
+            font-weight: bold;
+            /* 加粗 */
+        }
+
+        /* 已读状态：绿色 */
+        .status-done {
+            background: #e8f5e9;
+            /* 浅绿背景 */
+            color: #2e7d32;
+            /* 深绿文字 */
+        }
+
+        /* 在读状态：蓝色 */
+        .status-reading {
+            background: #e3f2fd;
+            /* 浅蓝背景 */
+            color: #1565c0;
+            /* 深蓝文字 */
+        }
+
+        /* 未读状态：橙色 */
+        .status-todo {
+            background: #fff3e0;
+            /* 浅橙背景 */
+            color: #e65100;
+            /* 深橙文字 */
+        }
+
+        /* 备注说明 */
+        article.book-card .card-body .note {
+            font-size: 13px;
+            /* 字体大小 */
+            color: #666;
+            /* 灰色 */
+            margin-top: 8px;
+            /* 上外边距 */
+            font-style: italic;
+            /* 斜体 */
+        }
+
+        /* 卡片底部按钮区域 */
+        article.book-card .card-actions {
+            display: flex;
+            /* 弹性布局 */
+            justify-content: center;
+            /* 居中 */
+            gap: 12px;
+            /* 按钮间距 */
+            padding: 0 18px;
+            /* 左右内边距 */
+        }
+
+        /* 操作按钮统一样式 */
+        article.book-card .card-actions button {
+            padding: 7px 16px;
+            /* 内边距 */
+            font-size: 13px;
+            /* 字体大小 */
+            border: none;
+            /* 无边框 */
+            border-radius: 15px;
+            /* 圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+        }
+
+        /* 编辑按钮 */
+        article.book-card .card-actions .btn-edit {
+            background: #e3f2fd;
+            /* 浅蓝背景 */
+            color: #1976d2;
+            /* 蓝色文字 */
+        }
+
+        /* 编辑按钮悬浮 */
+        article.book-card .card-actions .btn-edit:hover {
+            background: #bbdefb;
+            /* 深一点的蓝色 */
+        }
+
+        /* 删除按钮 */
+        article.book-card .card-actions .btn-delete {
+            background: #ffebee;
+            /* 浅红背景 */
+            color: #c62828;
+            /* 红色文字 */
+        }
+
+        /* 删除按钮悬浮 */
+        article.book-card .card-actions .btn-delete:hover {
+            background: #ffcdd2;
+            /* 深一点的红 */
+        }
+
+        /* 切换状态按钮 */
+        article.book-card .card-actions .btn-status {
+            background: #f3e5f5;
+            /* 浅紫背景 */
+            color: #6a1b9a;
+            /* 紫色文字 */
+        }
+
+        /* 切换状态按钮悬浮 */
+        article.book-card .card-actions .btn-status:hover {
+            background: #e1bee7;
+            /* 深一点的紫 */
+        }
+
+        /* ========== 空状态提示 ========== */
+        .empty-state {
+            text-align: center;
+            /* 居中 */
+            padding: 60px 20px;
+            /* 内边距 */
+            color: #bbb;
+            /* 浅灰色 */
+            font-size: 18px;
+            /* 字体大小 */
+        }
+
+        /* ========== 响应式布局：手机端适配 ========== */
+        @media screen and (max-width: 768px) {
+            header h2 {
+                font-size: 22px;
+                /* 缩小标题 */
+            }
+
+            /* 表单在小屏幕上垂直排列 */
+            .add-form {
+                flex-direction: column;
+                /* 垂直排列 */
+                padding: 15px;
+                /* 缩小内边距 */
+            }
+
+            .add-form input[name="title"],
+            .add-form input[name="author"] {
+                width: 100%;
+                /* 宽度占满 */
+            }
+
+            article.book-card {
+                width: 100%;
+                /* 卡片宽度占满 */
+                max-width: 340px;
+                /* 最大宽度限制 */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ==================== 页面头部（HTML5 header标签） ==================== -->
+    <!-- 使用HTML5语义化标签header，满足HTML5标签要求 -->
+    <header>
+        <h2>📋 阅读清单</h2>
+        <p>记录你的阅读旅程</p>
+    </header>
+
+    <!-- ==================== 添加书籍表单 ==================== -->
+    <!-- 使用Flex布局的表单区域 -->
+    <div class="add-form" id="addForm">
+        <!-- 书名输入框 -->
+        <input type="text" name="title" id="inputTitle" placeholder="书名（必填）">
+        <!-- 作者输入框 -->
+        <input type="text" name="author" id="inputAuthor" placeholder="作者">
+        <!-- 分类下拉选择 -->
+        <select id="inputCategory">
+            <option value="tech">技术</option>
+            <option value="literature">文学</option>
+            <option value="history">历史</option>
+            <option value="philosophy">哲学</option>
+            <option value="other">其他</option>
+        </select>
+        <!-- 备注输入框 -->
+        <input type="text" name="note" id="inputNote" placeholder="备注（选填）">
+        <!-- 按钮组：添加/更新 + 取消编辑 -->
+        <div class="form-btns">
+            <button class="btn-submit" id="btnSubmit" onclick="saveOrUpdateBook()">➕ 添加书籍</button>
+            <button class="btn-cancel" id="btnCancel" onclick="cancelEdit()">✖ 取消编辑</button>
+        </div>
+    </div>
+
+    <!-- ==================== 统计信息 ==================== -->
+    <div class="stats">
+        共 <strong id="totalCount">0</strong> 本书 ·
+        已读 <strong id="doneCount">0</strong> 本 ·
+        在读 <strong id="readingCount">0</strong> 本 ·
+        未读 <strong id="todoCount">0</strong> 本
+    </div>
+
+    <!-- ==================== 书籍卡片网格 ==================== -->
+    <!-- 使用Flex布局的卡片容器，每个卡片使用article标签 -->
+    <div class="book-grid" id="bookGrid">
+        <!-- 书籍卡片由JS动态渲染生成 -->
+    </div>
+
+    <!-- ==================== JavaScript逻辑 ==================== -->
+    <script>
+        // ========== localStorage 数据管理 ==========
+        const STORAGE_KEY = 'readingList'; // localStorage存储键名
+        let currentEditIndex = -1; // 当前正在编辑的书籍索引，-1表示新增模式
+
+        /**
+         * 从localStorage读取全部书籍数据
+         * @returns {Array} 书籍数组
+         */
+        function loadBooks() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            // 若无数据则返回空数组
+            return data ? JSON.parse(data) : [];
+        }
+
+        /**
+         * 保存全部书籍数据到localStorage
+         * @param {Array} books - 书籍数组
+         */
+        function saveBooks(books) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+        }
+
+        // ========== 渲染函数 ==========
+        /**
+         * 渲染所有书籍卡片到页面
+         * 每本书使用HTML5 article标签包裹
+         */
+        function renderBooks() {
+            const books = loadBooks();
+            const grid = document.getElementById('bookGrid');
+
+            // 空状态处理
+            if (books.length === 0) {
+                grid.innerHTML = '<div class="empty-state">📭 还没有书籍，快添加一本吧！</div>';
+            } else {
+                grid.innerHTML = '';
+                // 遍历书籍数据，使用article标签渲染每个卡片
+                books.forEach(function (book, index) {
+                    // 创建article元素（HTML5语义化标签）
+                    const article = document.createElement('article');
+                    // 添加book-card类及分类类（控制顶部色条颜色）
+                    article.className = 'book-card ' + book.category;
+                    // 设置data-index属性便于后续编辑删除操作
+                    article.setAttribute('data-index', index);
+
+                    // 根据阅读状态确定状态标签的CSS类
+                    let statusClass = '';
+                    let statusText = '';
+                    if (book.status === 'done') {
+                        statusClass = 'status-done';
+                        statusText = '✅ 已读';
+                    } else if (book.status === 'reading') {
+                        statusClass = 'status-reading';
+                        statusText = '📖 在读';
+                    } else {
+                        statusClass = 'status-todo';
+                        statusText = '📌 未读';
+                    }
+
+                    // 分类中文名映射
+                    const categoryMap = {
+                        'tech': '技术',
+                        'literature': '文学',
+                        'history': '历史',
+                        'philosophy': '哲学',
+                        'other': '其他'
+                    };
+
+                    // 构建卡片HTML结构
+                    article.innerHTML = `
+                        <div class="card-top"></div>
+                        <div class="card-body">
+                            <h3>${escapeHTML(book.title)}</h3>
+                            <p class="author">✍ ${escapeHTML(book.author) || '佚名'}</p>
+                            <span class="category">${categoryMap[book.category] || '其他'}</span>
+                            <span class="status-tag ${statusClass}">${statusText}</span>
+                            ${book.note ? '<p class="note">💬 ' + escapeHTML(book.note) + '</p>' : ''}
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-status" onclick="toggleStatus(${index})">🔄 切换状态</button>
+                            <button class="btn-edit" onclick="editBook(${index})">✏ 编辑</button>
+                            <button class="btn-delete" onclick="deleteBook(${index})">🗑 删除</button>
+                        </div>
+                    `;
+                    // 将article卡片添加到网格中
+                    grid.appendChild(article);
+                });
+            }
+
+            // 更新统计数字
+            updateStats();
+        }
+
+        /**
+         * 更新顶部统计信息
+         */
+        function updateStats() {
+            const books = loadBooks();
+            document.getElementById('totalCount').textContent = books.length;
+            document.getElementById('doneCount').textContent = books.filter(function (b) { return b.status === 'done'; }).length;
+            document.getElementById('readingCount').textContent = books.filter(function (b) { return b.status === 'reading'; }).length;
+            document.getElementById('todoCount').textContent = books.filter(function (b) { return b.status === 'todo'; }).length;
+        }
+
+        /**
+         * HTML转义：防止XSS攻击
+         * @param {string} str - 原始字符串
+         * @returns {string} 转义后的安全字符串
+         */
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // ========== 增删改查操作 ==========
+        /**
+         * 添加或更新书籍（根据currentEditIndex判断是新增还是更新）
+         * 读取表单数据，校验后存入localStorage
+         */
+        function saveOrUpdateBook() {
+            const title = document.getElementById('inputTitle').value.trim();
+            const author = document.getElementById('inputAuthor').value.trim();
+            const category = document.getElementById('inputCategory').value;
+            const note = document.getElementById('inputNote').value.trim();
+
+            // 校验：书名不能为空
+            if (!title) {
+                alert('请输入书名！');
+                document.getElementById('inputTitle').focus();
+                return;
+            }
+
+            const books = loadBooks();
+
+            if (currentEditIndex === -1) {
+                // ===== 新增模式 =====
+                const newBook = {
+                    title: title,
+                    author: author || '佚名',
+                    category: category,
+                    status: 'todo', // 新添加的书默认状态为"未读"
+                    note: note
+                };
+                // 添加新书到数组末尾
+                books.push(newBook);
+            } else {
+                // ===== 编辑模式：更新已有记录（保留原阅读状态） =====
+                books[currentEditIndex].title = title;
+                books[currentEditIndex].author = author || '佚名';
+                books[currentEditIndex].category = category;
+                books[currentEditIndex].note = note;
+                // 结束编辑模式
+                currentEditIndex = -1;
+                // 恢复按钮状态
+                updateFormMode();
+            }
+
+            // 保存到localStorage
+            saveBooks(books);
+            // 重新渲染
+            renderBooks();
+            // 清空表单
+            resetForm();
+        }
+
+        /**
+         * 删除书籍
+         * @param {number} index - 要删除的书籍索引
+         */
+        function deleteBook(index) {
+            const books = loadBooks();
+            const title = books[index].title;
+            // 确认删除
+            if (!confirm('确定要删除《' + title + '》吗？此操作不可恢复！')) return;
+            // 删除指定索引的书籍
+            books.splice(index, 1);
+            // 如果正在编辑被删除的记录，取消编辑模式
+            if (currentEditIndex === index) {
+                currentEditIndex = -1;
+                updateFormMode();
+                resetForm();
+            } else if (currentEditIndex > index) {
+                // 如果编辑的记录在被删除记录之后，索引需要减1
+                currentEditIndex--;
+            }
+            // 保存
+            saveBooks(books);
+            // 重新渲染
+            renderBooks();
+        }
+
+        /**
+         * 切换书籍阅读状态
+         * 状态循环：未读 → 在读 → 已读 → 未读
+         * @param {number} index - 书籍索引
+         */
+        function toggleStatus(index) {
+            const books = loadBooks();
+            const book = books[index];
+            // 三种状态循环切换
+            if (book.status === 'todo') {
+                book.status = 'reading';
+            } else if (book.status === 'reading') {
+                book.status = 'done';
+            } else {
+                book.status = 'todo';
+            }
+            // 保存
+            saveBooks(books);
+            // 重新渲染
+            renderBooks();
+        }
+
+        /**
+         * 编辑书籍：将数据回填到表单，进入编辑模式
+         * @param {number} index - 要编辑的书籍在数组中的索引
+         */
+        function editBook(index) {
+            const books = loadBooks();
+            const book = books[index];
+
+            // 设置当前编辑索引
+            currentEditIndex = index;
+
+            // 将书籍数据回填到表单
+            document.getElementById('inputTitle').value = book.title;
+            document.getElementById('inputAuthor').value = book.author || '';
+            document.getElementById('inputCategory').value = book.category;
+            document.getElementById('inputNote').value = book.note || '';
+
+            // 更新按钮状态：添加→更新，显示取消按钮
+            updateFormMode();
+
+            // 滚动到表单区域
+            document.getElementById('addForm').scrollIntoView({ behavior: 'smooth' });
+            // 聚焦书名输入框方便修改
+            document.getElementById('inputTitle').focus();
+        }
+
+        /**
+         * 取消编辑：清空表单，恢复新增模式
+         */
+        function cancelEdit() {
+            currentEditIndex = -1;
+            resetForm();
+            updateFormMode();
+            document.getElementById('inputTitle').focus();
+        }
+
+        /**
+         * 根据编辑状态更新表单UI（按钮文字和可见性）
+         */
+        function updateFormMode() {
+            const btnSubmit = document.getElementById('btnSubmit');
+            const btnCancel = document.getElementById('btnCancel');
+            if (currentEditIndex === -1) {
+                // 新增模式
+                btnSubmit.textContent = '➕ 添加书籍';
+                btnCancel.style.display = 'none';
+            } else {
+                // 编辑模式
+                btnSubmit.textContent = '✅ 更新书籍';
+                btnCancel.style.display = 'inline-block';
+            }
+        }
+
+        /**
+         * 重置表单：清空所有输入字段，恢复编辑状态
+         */
+        function resetForm() {
+            document.getElementById('inputTitle').value = '';
+            document.getElementById('inputAuthor').value = '';
+            document.getElementById('inputCategory').value = 'tech';
+            document.getElementById('inputNote').value = '';
+            currentEditIndex = -1;
+        }
+
+        // ========== 键盘快捷键支持 ==========
+        // 在书名输入框按回车键直接添加/更新
+        document.getElementById('inputTitle').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // 阻止默认行为
+                saveOrUpdateBook();
+            }
+        });
+
+        // ========== 页面初始化 ==========
+        window.onload = function () {
+            renderBooks(); // 渲染全部书籍卡片
+        };
+    </script>
+</body>
+
+</html>

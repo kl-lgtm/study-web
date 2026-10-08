@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<!-- HTML5 文档类型声明 -->
+<html lang="zh-CN">
+<!-- 网页头部：配置字符集、标题、样式 -->
+
+<head>
+    <!-- 设置页面编码为UTF-8 -->
+    <meta charset="UTF-8">
+    <!-- 页面标题 -->
+    <title>备忘录</title>
+    <!-- 引入工具JS文件（包含时间格式化、星期函数） -->
+    <script src="js/utils.js"></script>
+    <style>
+        /* 页面整体样式：透明背景（与iframe其他页面一致）、字体、内边距 */
+        body {
+            background: transparent;
+            font-family: "Microsoft YaHei";
+            padding: 20px;
+        }
+
+        /* 顶部标题区域样式：居中、字体大小、颜色、底部间距 */
+        .header {
+            text-align: center;
+            font-size: 16px;
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        /* 星期文字样式：蓝色 */
+        .week {
+            color: blue;
+        }
+
+        /* 添加按钮样式 */
+        #addBtn {
+            font-size: 14px;
+            padding: 2px 8px;
+            margin-left: 5px;
+            cursor: pointer;
+            /* 手型光标 */
+        }
+
+        /* 编辑、删除操作按钮统一样式 */
+        .btn-edit,
+        .btn-delete {
+            font-size: 12px;
+            /* 字体大小 */
+            padding: 2px 8px;
+            /* 内边距 */
+            margin-left: 5px;
+            /* 左边距 */
+            cursor: pointer;
+            /* 手型光标 */
+            border: 1px solid #ccc;
+            /* 边框 */
+            border-radius: 4px;
+            /* 圆角 */
+            background: #fff;
+            /* 白色背景 */
+            transition: all 0.3s;
+            /* 过渡动画(CSS3) */
+        }
+
+        /* 编辑按钮悬浮：蓝色 */
+        .btn-edit:hover {
+            background: #e3f2fd;
+            /* 浅蓝背景 */
+            border-color: #2196f3;
+            /* 蓝色边框 */
+            color: #1976d2;
+            /* 蓝色文字 */
+        }
+
+        /* 删除按钮悬浮：红色 */
+        .btn-delete:hover {
+            background: #ffebee;
+            /* 浅红背景 */
+            border-color: #f44336;
+            /* 红色边框 */
+            color: #c62828;
+            /* 红色文字 */
+        }
+
+        /* 表单标题（编辑模式下显示） */
+        .form-title {
+            text-align: center;
+            /* 居中 */
+            font-weight: bold;
+            /* 加粗 */
+            margin-bottom: 8px;
+            /* 底部外边距 */
+            color: #2196f3;
+            /* 蓝色 */
+        }
+
+        /* 取消按钮 */
+        #cancelBtn {
+            display: none;
+            /* 默认隐藏，编辑模式下显示 */
+        }
+
+        /* 表单容器样式：蓝色边框、内边距、宽度、居中、字体大小 */
+        .form-box {
+            border: 1px solid blue;
+            padding: 10px;
+            max-width: 500px;
+            width: 95%;
+            margin: 0 auto;
+            font-size: 14px;
+        }
+
+        /* 表单项输入框样式 */
+        .form-box input {
+            margin: 5px 0;
+            padding: 2px;
+        }
+
+        /* 按钮组样式：居中、顶部间距 */
+        .btn-group {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* 按钮通用样式 */
+        .btn-group button {
+            font-size: 14px;
+            padding: 2px 10px;
+            margin: 0 5px;
+        }
+
+        /* 备忘录列表样式：清除默认圆点、顶部间距、字体大小 */
+        #memoList {
+            list-style: none;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* 未完成状态文字颜色：红色 */
+        .undone {
+            color: red;
+        }
+
+        /* 已完成状态文字颜色：灰色 */
+        .done {
+            color: gray;
+        }
+
+        /* 列表鼠标悬浮背景效果 */
+        #memoList li:hover {
+            background-color: #ffffff;
+            cursor: pointer;
+            padding: 2px 5px;
+        }
+
+        /* ========== 响应式布局：手机端适配 ========== */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+                /* 缩小页面内边距 */
+            }
+
+            .header {
+                font-size: 14px;
+                /* 缩小标题字体 */
+            }
+
+            .form-box {
+                width: 98%;
+                /* 手机端更宽的占比 */
+                padding: 8px;
+                /* 缩小内边距 */
+                font-size: 13px;
+                /* 缩小字体 */
+            }
+
+            .form-box input[type="text"],
+            .form-box input[type="date"] {
+                font-size: 13px;
+                /* 缩小输入框字体 */
+            }
+
+            #addBtn {
+                font-size: 12px;
+                /* 缩小按钮字体 */
+                padding: 2px 6px;
+            }
+
+            /* 手机端按钮组间距调整 */
+            .btn-group button,
+            .btn-group input {
+                font-size: 12px;
+                /* 缩小按钮字体 */
+                padding: 2px 8px;
+                /* 缩小内边距 */
+                margin: 2px 3px;
+            }
+
+            #memoList {
+                font-size: 12px;
+                /* 缩小列表字体 */
+            }
+
+            .btn-edit,
+            .btn-delete {
+                font-size: 10px;
+                /* 缩小编辑/删除按钮 */
+                padding: 1px 6px;
+            }
+        }
+    </style>
+</head>
+<!-- 页面主体内容 -->
+
+<body>
+    <!-- 顶部标题栏：显示备忘录+星期+添加按钮 -->
+    <div class="header">
+        备忘录：今天<span class="week" id="weekStr"></span>
+        <input type="button" id="addBtn" value="添加备忘录" onclick="showForm()">
+    </div>
+
+    <!-- 表单改为form标签 重置按钮正常生效 -->
+    <form id="memoForm" class="form-box" style="display: none;">
+        <!-- 表单标题：编辑模式下显示"编辑备忘录" -->
+        <div class="form-title" id="formTitle" style="display:none;">✏ 编辑备忘录</div>
+        <div>
+            日期：<input type="date" id="mDate">
+        </div>
+        <div>
+            备忘录：<input type="text" id="mContent" style="width: 65%; min-width: 150px;" placeholder="请输入备忘信息">
+        </div>
+        <div>
+            重要性：
+            <input type="radio" name="level" value="重要" checked>重要
+            <input type="radio" name="level" value="普通">普通
+        </div>
+        <div>
+            状态：
+            <input type="radio" name="status" value="已完成">已完成
+            <input type="radio" name="status" value="未完成" checked>未完成
+        </div>
+        <!-- 确认/取消/重置按钮组 -->
+        <div class="btn-group">
+            <input type="button" id="sureBtn" value="✅ 添加备忘" onclick="saveMemo()">
+            <input type="button" id="cancelBtn" value="✖ 取消编辑" onclick="cancelEdit()">
+            <input type="reset" value="重置" onclick="customReset()">
+        </div>
+    </form>
+
+    <!-- 备忘录列表展示区域 -->
+    <ul id="memoList"></ul>
+
+    <script>
+        // 提前获取表单DOM元素
+        let formDom = document.getElementById("memoForm");
+        let currentEditIndex = -1;
+
+        // 显示当前星期几
+        function showWeek() {
+            let now = new Date();
+            document.getElementById("weekStr").innerText = getWeek(now);
+        }
+
+        // 显示备忘录表单（新增模式）
+        function showForm() {
+            formDom.style.display = "block";
+            setDefaultDate(); // 设置日期默认值为今天
+            currentEditIndex = -1;
+            updateFormMode(); // 更新按钮状态为新增模式
+        }
+
+        /**
+         * 编辑指定索引的备忘录：数据回填到表单，进入编辑模式
+         * @param {number} index - 要编辑的备忘录索引
+         */
+        function editMemo(index) {
+            const list = getAllData();
+            const item = list[index];
+
+            // 设置当前编辑索引
+            currentEditIndex = index;
+
+            // 将已有数据回填到表单
+            document.getElementById('mDate').value = item.date;
+            document.getElementById('mContent').value = item.desc;
+            // 回填重要性单选按钮
+            const levelRadios = document.querySelectorAll('input[name="level"]');
+            levelRadios.forEach(function (r) {
+                r.checked = (r.value === item.important);
+            });
+            // 回填状态单选按钮
+            const statusRadios = document.querySelectorAll('input[name="status"]');
+            statusRadios.forEach(function (r) {
+                r.checked = (r.value === item.done);
+            });
+
+            // 显示表单
+            formDom.style.display = "block";
+            // 更新按钮状态为编辑模式
+            updateFormMode();
+            // 聚焦内容输入框
+            document.getElementById('mContent').focus();
+        }
+
+        /**
+         * 取消编辑：隐藏表单，恢复新增模式
+         */
+        function cancelEdit() {
+            formDom.style.display = "none";
+            formDom.reset();
+            document.getElementById('mDate').value = '';
+            currentEditIndex = -1;
+            updateFormMode();
+        }
+
+        /**
+         * 根据编辑状态更新表单UI（按钮文字、标题可见性）
+         */
+        function updateFormMode() {
+            const sureBtn = document.getElementById('sureBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const formTitle = document.getElementById('formTitle');
+            if (currentEditIndex === -1) {
+                // 新增模式
+                sureBtn.value = '✅ 添加备忘';
+                cancelBtn.style.display = 'none';
+                formTitle.style.display = 'none';
+            } else {
+                // 编辑模式
+                sureBtn.value = '✏ 更新备忘';
+                cancelBtn.style.display = 'inline-block';
+                formTitle.style.display = 'block';
+            }
+        }
+
+        // 设置日期输入框默认值为今天（格式为 yyyy-mm-dd）
+        function setDefaultDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+            document.getElementById("mDate").value = todayStr;
+        }
+
+        // 自定义重置：清空日期，恢复提示文字
+        function customReset() {
+            formDom.reset();
+            document.getElementById("mDate").value = "";
+        }
+
+        // 整体覆盖保存数据到localStorage
+        function saveAllData(data) {
+            localStorage.setItem("desc", JSON.stringify(data));
+        }
+
+        // 获取本地全部备忘录数据
+        function getAllData() {
+            var data = localStorage.getItem("desc");
+            if (!data) return [];
+            return JSON.parse(data);
+        }
+
+        // 读取JSON数据渲染页面
+        function restore(ul) {
+            var item = getAllData();
+            ul.innerHTML = "";
+            for (let i = 0; i < item.length; i++) {
+                var li = document.createElement("li");
+                let toggleBtnText = item[i].done === "已完成" ? "切换为未完成" : "切换为已完成";
+                li.innerHTML = `${item[i].date} ${item[i].desc} ${item[i].important} ${item[i].done}
+                <button onclick="toggleDone(${i})" style="margin-left:10px;">${toggleBtnText}</button>
+                <button class="btn-edit" onclick="editMemo(${i})">✏ 编辑</button>
+                <button class="btn-delete" onclick="deleteMemo(${i})">🗑 删除</button>`;
+                li.className = item[i].done === "已完成" ? "done" : "undone";
+                ul.appendChild(li);
+            }
+        }
+
+        // 保存备忘录
+        function saveMemo() {
+            let date = document.getElementById("mDate").value;
+            let content = document.getElementById("mContent").value;
+            let level = document.querySelector('input[name="level"]:checked').value;
+            let status = document.querySelector('input[name="status"]:checked').value;
+
+            // 控制台打印验证单选按钮值
+            console.log("选中的重要性：", level);
+            console.log("选中的状态：", status);
+
+            // 非空判断
+            if (!date || !content) {
+                alert("日期和内容不能为空！");
+                return;
+            }
+
+            // 构建JSON对象
+            var json = {
+                date: date,
+                desc: content,
+                important: level,
+                done: status
+            };
+
+            let list = getAllData();
+            if (currentEditIndex === -1) {
+                list.push(json);
+            } else {
+                list[currentEditIndex] = json;
+            }
+            saveAllData(list);
+            renderList();
+            // 保存后关闭表单，恢复新增模式
+            formDom.style.display = "none";
+            currentEditIndex = -1;
+            updateFormMode();
+            formDom.reset();
+            document.getElementById("mDate").value = "";
+        }
+
+        // 切换完成/未完成状态
+        function toggleDone(index) {
+            let list = getAllData();
+            list[index].done = list[index].done === "已完成" ? "未完成" : "已完成";
+            saveAllData(list);
+            renderList();
+        }
+
+        // 删除备忘录
+        function deleteMemo(index) {
+            if (!confirm("确定删除该备忘录吗？")) return;
+            let list = getAllData();
+            list.splice(index, 1);
+            // 如果正在编辑被删除的记录，取消编辑模式
+            if (currentEditIndex === index) {
+                currentEditIndex = -1;
+                updateFormMode();
+                formDom.style.display = "none";
+            } else if (currentEditIndex > index) {
+                // 如果编辑的记录在被删除记录之后，索引减1
+                currentEditIndex--;
+            }
+            saveAllData(list);
+            renderList();
+        }
+
+        // 渲染列表
+        function renderList() {
+            let ul = document.getElementById("memoList");
+            ul.innerHTML = "";
+            restore(ul);
+        }
+
+        // 页面加载初始化
+        window.onload = function () {
+            showWeek();
+            renderList();
+        }
+
+        // getWeek函数已在 js/utils.js 中定义，此处直接使用
+
+    </script>
+</body>
+
+</html>

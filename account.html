@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<!-- HTML5 文档类型声明 -->
+<html lang="zh-CN">
+<!-- 设置网页语言为中文 -->
+
+<head>
+    <!-- 设置文档字符编码为UTF-8，防止中文乱码 -->
+    <meta charset="UTF-8">
+    <!-- 设置视口，适配移动端设备 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 网页标题 -->
+    <title>记账本</title>
+    <style>
+        /* ========== 全局样式初始化 ========== */
+        * {
+            margin: 0;
+            /* 清除默认外边距 */
+            padding: 0;
+            /* 清除默认内边距 */
+            box-sizing: border-box;
+            /* 统一盒子模型为border-box */
+        }
+
+        /* 页面整体样式 */
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            /* 设置字体 */
+            background: transparent;
+            /* 透明背景，与其他iframe页面一致 */
+            min-height: 100vh;
+            /* 最小高度占满视口 */
+            padding: 20px;
+            /* 页面内边距 */
+        }
+
+        /* ========== 页面头部（HTML5 header标签） ========== */
+        /* 使用HTML5语义化标签header */
+        header {
+            text-align: center;
+            /* 文字居中 */
+            margin-bottom: 25px;
+            /* 底部外边距 */
+            padding: 20px 0 15px;
+            /* 上下内边距 */
+            border-bottom: 3px solid #667eea;
+            /* 紫色底部分隔线 */
+        }
+
+        /* 头部标题 */
+        header h2 {
+            color: #333;
+            /* 深灰 */
+            font-size: 26px;
+            /* 字体大小 */
+            margin-bottom: 5px;
+            /* 底部外边距 */
+        }
+
+        /* 头部副标题 */
+        header p {
+            color: #999;
+            /* 灰色 */
+            font-size: 13px;
+            /* 字体大小 */
+        }
+
+        /* ========== 收支汇总卡片区域 ========== */
+        /* 三张汇总卡片：使用Flex弹性布局，水平居中 */
+        .summary {
+            display: flex;
+            /* 弹性布局 */
+            gap: 20px;
+            /* 卡片间距 */
+            justify-content: center;
+            /* 水平居中 */
+            flex-wrap: wrap;
+            /* 小屏幕允许换行 */
+            margin-bottom: 25px;
+            /* 底部外边距 */
+        }
+
+        /* 每张汇总卡片的公共样式 */
+        .summary-card {
+            background: #fff;
+            /* 白色背景 */
+            border-radius: 16px;
+            /* 圆角 */
+            padding: 22px 30px;
+            /* 内边距 */
+            min-width: 170px;
+            /* 最小宽度 */
+            text-align: center;
+            /* 文字居中 */
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+            /* 阴影 */
+            transition: transform 0.3s;
+            /* 过渡动画(CSS3) */
+            flex: 1;
+            /* 弹性等分 */
+            max-width: 260px;
+            /* 最大宽度 */
+        }
+
+        /* 汇总卡片悬浮效果(CSS3)：上浮 */
+        .summary-card:hover {
+            transform: translateY(-4px);
+            /* 向上浮动4px */
+        }
+
+        /* 汇总卡片标签文字 */
+        .summary-card .label {
+            font-size: 14px;
+            /* 字体大小 */
+            color: #999;
+            /* 灰色 */
+            margin-bottom: 8px;
+            /* 底部外边距 */
+        }
+
+        /* 汇总卡片金额数字 */
+        .summary-card .amount {
+            font-size: 32px;
+            /* 大字显示金额 */
+            font-weight: bold;
+            /* 加粗 */
+        }
+
+        /* 总收入：绿色 */
+        .summary-card.income .amount {
+            color: #2e7d32;
+        }
+
+        /* 总支出：红色 */
+        .summary-card.expense .amount {
+            color: #c62828;
+        }
+
+        /* 结余：蓝色（正数）或红色（负数） */
+        .summary-card.balance .amount {
+            color: #1565c0;
+        }
+
+        /* 结余为负数时变红 */
+        .summary-card.balance .amount.negative {
+            color: #c62828;
+        }
+
+        /* ========== 添加记录表单区域 ========== */
+        /* 使用Flex布局的表单容器 */
+        .add-form {
+            display: flex;
+            /* 弹性布局 */
+            flex-wrap: wrap;
+            /* 允许换行 */
+            gap: 10px;
+            /* 表单项间距 */
+            justify-content: center;
+            /* 水平居中 */
+            align-items: center;
+            /* 垂直居中 */
+            margin-bottom: 25px;
+            /* 底部外边距 */
+            padding: 18px 20px;
+            /* 内边距 */
+            background: #fff;
+            /* 白色背景 */
+            border-radius: 16px;
+            /* 圆角 */
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            /* 阴影 */
+        }
+
+        /* 表单输入框、下拉框的统一样式 */
+        .add-form input,
+        .add-form select {
+            padding: 10px 14px;
+            /* 内边距 */
+            border: 2px solid #e8e8e8;
+            /* 浅灰边框 */
+            border-radius: 10px;
+            /* 圆角 */
+            font-size: 14px;
+            /* 字体大小 */
+            transition: border-color 0.3s, box-shadow 0.3s;
+            /* 边框和阴影过渡 */
+            outline: none;
+            /* 去除默认轮廓 */
+            font-family: inherit;
+            /* 继承父字体 */
+        }
+
+        /* 输入框聚焦效果 */
+        .add-form input:focus,
+        .add-form select:focus {
+            border-color: #667eea;
+            /* 紫色边框 */
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+            /* 紫色光晕 */
+        }
+
+        /* 金额输入框：数字类型，稍宽 */
+        .add-form input[name="amount"] {
+            width: 150px;
+            /* 宽度 */
+        }
+
+        /* 备注输入框：更宽 */
+        .add-form input[name="note"] {
+            width: 220px;
+            /* 宽度 */
+        }
+
+        /* 添加按钮 */
+        .add-form .btn-add {
+            padding: 10px 30px;
+            /* 内边距 */
+            font-size: 15px;
+            /* 字体大小 */
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            /* 渐变紫色(CSS3) */
+            color: #fff;
+            /* 白色文字 */
+            border: none;
+            /* 无边框 */
+            border-radius: 22px;
+            /* 大圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            font-weight: bold;
+            /* 加粗 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            /* 阴影 */
+        }
+
+        /* 添加按钮悬浮效果 */
+        .add-form .btn-add:hover {
+            transform: translateY(-2px);
+            /* 上移2px */
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+            /* 更强阴影 */
+        }
+
+        /* ========== 筛选按钮区域 ========== */
+        .filter-bar {
+            display: flex;
+            /* 弹性布局 */
+            justify-content: center;
+            /* 居中 */
+            gap: 12px;
+            /* 按钮间距 */
+            margin-bottom: 20px;
+            /* 底部外边距 */
+            flex-wrap: wrap;
+            /* 允许换行 */
+        }
+
+        /* 筛选按钮统一样式 */
+        .filter-bar button {
+            padding: 8px 22px;
+            /* 内边距 */
+            font-size: 14px;
+            /* 字体大小 */
+            border: 2px solid #e0e0e0;
+            /* 浅灰边框 */
+            background: #fff;
+            /* 白色背景 */
+            border-radius: 18px;
+            /* 圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+        }
+
+        /* 筛选按钮悬浮效果 */
+        .filter-bar button:hover {
+            border-color: #667eea;
+            /* 紫色边框 */
+            color: #667eea;
+            /* 紫色文字 */
+        }
+
+        /* 当前选中筛选按钮的激活样式 */
+        .filter-bar button.active {
+            background: #667eea;
+            /* 紫色背景 */
+            color: #fff;
+            /* 白色文字 */
+            border-color: #667eea;
+            /* 紫色边框 */
+        }
+
+        /* ========== 账单列表样式 ========== */
+        /* 使用Flex列布局 */
+        .bill-list {
+            display: flex;
+            /* 弹性布局 */
+            flex-direction: column;
+            /* 垂直排列 */
+            gap: 10px;
+            /* 条目间距 */
+            max-width: 700px;
+            /* 最大宽度 */
+            margin: 0 auto;
+            /* 水平居中 */
+        }
+
+        /* 每条账单条目：Flex横向布局 */
+        .bill-item {
+            display: flex;
+            /* 弹性布局 */
+            align-items: center;
+            /* 垂直居中 */
+            gap: 15px;
+            /* 内部元素间距 */
+            background: #fff;
+            /* 白色背景 */
+            padding: 14px 20px;
+            /* 内边距 */
+            border-radius: 12px;
+            /* 圆角 */
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+            /* 轻阴影 */
+            transition: all 0.3s;
+            /* 过渡动画(CSS3) */
+            border-left: 5px solid transparent;
+            /* 左侧透明边框，用于类型着色 */
+        }
+
+        /* 账单条目悬浮效果(CSS3)：右移+阴影增强 */
+        .bill-item:hover {
+            transform: translateX(4px);
+            /* 右移4px */
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+            /* 增强阴影 */
+        }
+
+        /* 收入类型：左侧绿色边框 */
+        .bill-item.type-income {
+            border-left-color: #2e7d32;
+            /* 绿色边框 */
+        }
+
+        /* 支出类型：左侧红色边框 */
+        .bill-item.type-expense {
+            border-left-color: #c62828;
+            /* 红色边框 */
+        }
+
+        /* 分类标签 */
+        .bill-item .category-tag {
+            font-size: 12px;
+            /* 字体大小 */
+            padding: 3px 10px;
+            /* 内边距 */
+            border-radius: 10px;
+            /* 圆角 */
+            background: #f0f0ff;
+            /* 淡紫背景 */
+            color: #667eea;
+            /* 紫色文字 */
+            white-space: nowrap;
+            /* 不换行 */
+            flex-shrink: 0;
+            /* 不缩小 */
+        }
+
+        /* 备注文字：占满剩余空间 */
+        .bill-item .note-text {
+            flex: 1;
+            /* 占满剩余空间 */
+            font-size: 14px;
+            /* 字体大小 */
+            color: #555;
+            /* 灰色 */
+        }
+
+        /* 金额文字 */
+        .bill-item .money {
+            font-size: 18px;
+            /* 字体大小 */
+            font-weight: bold;
+            /* 加粗 */
+            white-space: nowrap;
+            /* 不换行 */
+            flex-shrink: 0;
+            /* 不缩小 */
+        }
+
+        /* 收入金额：绿色 */
+        .bill-item.type-income .money {
+            color: #2e7d32;
+        }
+
+        /* 支出金额：红色，前面加负号 */
+        .bill-item.type-expense .money {
+            color: #c62828;
+        }
+
+        /* 日期文字 */
+        .bill-item .date-text {
+            font-size: 12px;
+            /* 字体大小 */
+            color: #aaa;
+            /* 浅灰 */
+            white-space: nowrap;
+            /* 不换行 */
+            flex-shrink: 0;
+            /* 不缩小 */
+        }
+
+        /* 删除按钮 */
+        .bill-item .btn-delete {
+            background: #ffebee;
+            /* 浅红背景 */
+            color: #c62828;
+            /* 红色文字 */
+            border: none;
+            /* 无边框 */
+            padding: 5px 12px;
+            /* 内边距 */
+            border-radius: 12px;
+            /* 圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            font-size: 12px;
+            /* 字体大小 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            flex-shrink: 0;
+            /* 不缩小 */
+        }
+
+        /* 删除按钮悬浮效果 */
+        .bill-item .btn-delete:hover {
+            background: #ffcdd2;
+            /* 深一点的红色背景 */
+        }
+
+        /* 编辑按钮：浅蓝背景 */
+        .bill-item .btn-edit {
+            background: #e3f2fd;
+            /* 浅蓝背景 */
+            color: #1565c0;
+            /* 蓝色文字 */
+            border: none;
+            /* 无边框 */
+            padding: 5px 12px;
+            /* 内边距 */
+            border-radius: 12px;
+            /* 圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            font-size: 12px;
+            /* 字体大小 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            flex-shrink: 0;
+            /* 不缩小 */
+        }
+
+        /* 编辑按钮悬浮效果 */
+        .bill-item .btn-edit:hover {
+            background: #bbdefb;
+            /* 深一点的蓝色背景 */
+        }
+
+        /* 添加/更新按钮容器 */
+        .form-btns {
+            display: flex;
+            /* 弹性布局 */
+            gap: 10px;
+            /* 按钮间距 */
+        }
+
+        /* 取消按钮 */
+        .add-form .btn-cancel {
+            padding: 10px 20px;
+            /* 内边距 */
+            font-size: 15px;
+            /* 字体大小 */
+            background: #f0f0f0;
+            /* 浅灰背景 */
+            color: #666;
+            /* 灰色文字 */
+            border: none;
+            /* 无边框 */
+            border-radius: 22px;
+            /* 大圆角 */
+            cursor: pointer;
+            /* 手型光标 */
+            font-weight: bold;
+            /* 加粗 */
+            transition: all 0.3s;
+            /* 过渡动画 */
+            display: none;
+            /* 默认隐藏，编辑模式下显示 */
+        }
+
+        /* 取消按钮悬浮效果 */
+        .add-form .btn-cancel:hover {
+            background: #e0e0e0;
+            /* 深一点的灰色 */
+        }
+
+        /* ========== 空状态提示 ========== */
+        .empty-state {
+            text-align: center;
+            /* 居中 */
+            padding: 50px 20px;
+            /* 内边距 */
+            color: #bbb;
+            /* 浅灰色 */
+            font-size: 16px;
+            /* 字体大小 */
+        }
+
+        /* ========== 响应式布局：手机端适配 ========== */
+        @media screen and (max-width: 768px) {
+            header h2 {
+                font-size: 22px;
+                /* 缩小标题 */
+            }
+
+            /* 汇总卡片在手机上缩小 */
+            .summary-card {
+                padding: 15px 18px;
+                /* 缩小内边距 */
+                min-width: 100px;
+                /* 缩小最小宽度 */
+            }
+
+            .summary-card .amount {
+                font-size: 24px;
+                /* 缩小金额字号 */
+            }
+
+            /* 表单在手机上垂直排列 */
+            .add-form {
+                flex-direction: column;
+                /* 垂直排列 */
+                padding: 15px;
+                /* 缩小内边距 */
+            }
+
+            .add-form input[name="amount"],
+            .add-form input[name="note"] {
+                width: 100%;
+                /* 宽度占满 */
+            }
+
+            /* 账单条目在手机上缩小间距 */
+            .bill-item {
+                gap: 10px;
+                /* 缩小间距 */
+                padding: 12px 14px;
+                /* 缩小内边距 */
+                flex-wrap: wrap;
+                /* 允许换行 */
+            }
+
+            .bill-item .money {
+                font-size: 16px;
+                /* 缩小金额字号 */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ==================== 页面头部（HTML5 header标签） ==================== -->
+    <!-- 使用HTML5语义化标签header -->
+    <header>
+        <h2>💰 记账本</h2>
+        <p>记录每一笔收支</p>
+    </header>
+
+    <!-- ==================== 收支汇总卡片 ==================== -->
+    <!-- 三张卡片展示总收入、总支出、结余，使用Flex弹性布局 -->
+    <div class="summary">
+        <!-- 总收入卡片 -->
+        <div class="summary-card income">
+            <div class="label">📈 总收入</div>
+            <div class="amount" id="totalIncome">¥0.00</div>
+        </div>
+        <!-- 总支出卡片 -->
+        <div class="summary-card expense">
+            <div class="label">📉 总支出</div>
+            <div class="amount" id="totalExpense">¥0.00</div>
+        </div>
+        <!-- 结余卡片 -->
+        <div class="summary-card balance">
+            <div class="label">💎 结余</div>
+            <div class="amount" id="totalBalance">¥0.00</div>
+        </div>
+    </div>
+
+    <!-- ==================== 添加记录表单 ==================== -->
+    <!-- 使用Flex弹性布局的表单区域 -->
+    <div class="add-form" id="addForm">
+        <!-- 收支类型下拉框：收入/支出 -->
+        <select id="inputType">
+            <option value="income">收入</option>
+            <option value="expense">支出</option>
+        </select>
+        <!-- 金额输入框：数字类型，保留两位小数 -->
+        <input type="number" name="amount" id="inputAmount" placeholder="金额（元）" step="0.01" min="0.01">
+        <!-- 分类下拉框 -->
+        <select id="inputCategory">
+            <option value="餐饮">餐饮</option>
+            <option value="交通">交通</option>
+            <option value="购物">购物</option>
+            <option value="学习">学习</option>
+            <option value="娱乐">娱乐</option>
+            <option value="兼职">兼职</option>
+            <option value="生活费">生活费</option>
+            <option value="其他">其他</option>
+        </select>
+        <!-- 备注输入框 -->
+        <input type="text" name="note" id="inputNote" placeholder="备注（选填）">
+        <!-- 按钮组：添加/更新 + 取消编辑 -->
+        <div class="form-btns">
+            <button class="btn-add" id="btnSubmit" onclick="addOrUpdateBill()">➕ 添加记录</button>
+            <button class="btn-cancel" id="btnCancel" onclick="cancelEdit()">✖ 取消编辑</button>
+        </div>
+    </div>
+
+    <!-- ==================== 筛选按钮栏 ==================== -->
+    <div class="filter-bar">
+        <!-- 全部（默认激活） -->
+        <button class="active" data-filter="all" onclick="setFilter('all', this)">全部</button>
+        <!-- 仅显示收入 -->
+        <button data-filter="income" onclick="setFilter('income', this)">📈 收入</button>
+        <!-- 仅显示支出 -->
+        <button data-filter="expense" onclick="setFilter('expense', this)">📉 支出</button>
+    </div>
+
+    <!-- ==================== 账单列表 ==================== -->
+    <!-- JS动态渲染 -->
+    <div class="bill-list" id="billList"></div>
+
+    <!-- ==================== JavaScript逻辑 ==================== -->
+    <script>
+        // ========== localStorage 数据管理 ==========
+        const STORAGE_KEY = 'accountBook'; // localStorage存储键名
+        let currentFilter = 'all'; // 当前筛选类型：'all' | 'income' | 'expense'
+        let currentEditIndex = -1; // 当前正在编辑的账单索引，-1表示新增模式
+
+        /**
+         * 从localStorage读取全部账单数据
+         * @returns {Array} 账单数组，每项包含 type, amount, category, note, date
+         */
+        function loadBills() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            // 若无数据则返回空数组
+            return data ? JSON.parse(data) : [];
+        }
+
+        /**
+         * 保存全部账单数据到localStorage
+         * @param {Array} bills - 账单数组
+         */
+        function saveBills(bills) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(bills));
+        }
+
+        // ========== 渲染函数 ==========
+        /**
+         * 渲染全部内容：汇总卡片 + 账单列表
+         */
+        function renderAll() {
+            const bills = loadBills();
+
+            // 计算总收入：筛选type为income的账单，累加金额
+            const totalIncome = bills
+                .filter(function (b) { return b.type === 'income'; })
+                .reduce(function (sum, b) { return sum + Number(b.amount); }, 0);
+
+            // 计算总支出：筛选type为expense的账单，累加金额
+            const totalExpense = bills
+                .filter(function (b) { return b.type === 'expense'; })
+                .reduce(function (sum, b) { return sum + Number(b.amount); }, 0);
+
+            // 结余 = 收入 - 支出
+            const balance = totalIncome - totalExpense;
+
+            // 更新汇总卡片显示（保留两位小数）
+            document.getElementById('totalIncome').textContent = '¥' + totalIncome.toFixed(2);
+            document.getElementById('totalExpense').textContent = '¥' + totalExpense.toFixed(2);
+
+            const balanceEl = document.getElementById('totalBalance');
+            const balanceAbs = Math.abs(balance).toFixed(2);
+            // 结余为负数时添加负号并变红
+            if (balance < 0) {
+                balanceEl.textContent = '-¥' + balanceAbs;
+                balanceEl.classList.add('negative');
+            } else {
+                balanceEl.textContent = '¥' + balanceAbs;
+                balanceEl.classList.remove('negative');
+            }
+
+            // 渲染账单列表
+            renderBillList(bills);
+        }
+
+        /**
+         * 根据当前筛选条件渲染账单列表
+         * @param {Array} bills - 全部账单数据
+         */
+        function renderBillList(bills) {
+            const listEl = document.getElementById('billList');
+
+            // 根据筛选条件过滤账单
+            let filteredBills = bills.slice();
+            if (currentFilter === 'income') {
+                filteredBills = bills.filter(function (b) { return b.type === 'income'; });
+            } else if (currentFilter === 'expense') {
+                filteredBills = bills.filter(function (b) { return b.type === 'expense'; });
+            }
+
+            // 空状态处理
+            if (filteredBills.length === 0) {
+                listEl.innerHTML = '<div class="empty-state">📭 还没有记录，快添加一笔吧！</div>';
+                return;
+            }
+
+            // 按日期排序：最新的在上面
+            filteredBills.sort(function (a, b) { return b.date.localeCompare(a.date); });
+
+            listEl.innerHTML = '';
+            // 遍历账单数据，动态生成列表项
+            filteredBills.forEach(function (bill, index) {
+                // 在原始数据中的实际索引（用于删除操作）
+                const realIndex = bills.indexOf(bill);
+
+                // 创建账单条目容器
+                const item = document.createElement('div');
+                // 根据收支类型添加对应类名（控制左侧边框颜色和金额颜色）
+                item.className = 'bill-item type-' + bill.type;
+
+                // 金额显示格式化
+                const amountStr = Number(bill.amount).toFixed(2);
+                // 收入前加+号，支出前加-号
+                const moneyDisplay = bill.type === 'income' ?
+                    '+¥' + amountStr :
+                    '-¥' + amountStr;
+
+                // 构建条目HTML结构
+                item.innerHTML =
+                    '<span class="category-tag">' + escapeHTML(bill.category) + '</span>' +
+                    '<span class="note-text">' + escapeHTML(bill.note || '(无备注)') + '</span>' +
+                    '<span class="money">' + moneyDisplay + '</span>' +
+                    '<span class="date-text">' + escapeHTML(bill.date) + '</span>' +
+                    '<button class="btn-edit" data-index="' + realIndex + '">✏ 编辑</button>' +
+                    '<button class="btn-delete" data-index="' + realIndex + '">🗑 删除</button>';
+
+                // 为编辑按钮绑定事件：点击后将数据回填到表单
+                item.querySelector('.btn-edit').addEventListener('click', function () {
+                    editBill(realIndex);
+                });
+                // 为删除按钮绑定事件
+                item.querySelector('.btn-delete').addEventListener('click', function () {
+                    deleteBill(realIndex);
+                });
+
+                listEl.appendChild(item);
+            });
+        }
+
+        /**
+         * HTML转义：防止XSS攻击
+         * @param {string} str - 原始字符串
+         * @returns {string} 转义后的安全字符串
+         */
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // ========== 增加/删除操作 ==========
+        /**
+         * 添加或更新账单记录（根据currentEditIndex判断是新增还是更新）
+         * 读取表单数据，校验后存入localStorage
+         */
+        function addOrUpdateBill() {
+            const type = document.getElementById('inputType').value;
+            const amountStr = document.getElementById('inputAmount').value.trim();
+            const category = document.getElementById('inputCategory').value;
+            const note = document.getElementById('inputNote').value.trim();
+
+            // 校验：金额不能为空
+            if (!amountStr) {
+                alert('请输入金额！');
+                document.getElementById('inputAmount').focus();
+                return;
+            }
+
+            // 将字符串转为浮点数
+            const amount = parseFloat(amountStr);
+
+            // 校验：金额必须大于0
+            if (isNaN(amount) || amount <= 0) {
+                alert('金额必须大于0！');
+                document.getElementById('inputAmount').focus();
+                return;
+            }
+
+            const bills = loadBills();
+
+            if (currentEditIndex === -1) {
+                // ===== 新增模式 =====
+                // 获取当前日期，格式化为 yyyy-MM-dd
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const dateStr = year + '-' + month + '-' + day;
+
+                // 构建账单对象
+                const newBill = {
+                    type: type, // 收入/支出
+                    amount: amount, // 金额（数字）
+                    category: category, // 分类
+                    note: note, // 备注
+                    date: dateStr // 当前日期
+                };
+                // 添加新记录
+                bills.push(newBill);
+            } else {
+                // ===== 编辑模式：更新已有记录（保留原日期） =====
+                bills[currentEditIndex].type = type;
+                bills[currentEditIndex].amount = amount;
+                bills[currentEditIndex].category = category;
+                bills[currentEditIndex].note = note;
+                // 结束编辑模式
+                currentEditIndex = -1;
+                // 恢复按钮状态
+                updateFormMode();
+            }
+
+            // 保存到localStorage
+            saveBills(bills);
+            // 重新渲染
+            renderAll();
+            // 清空表单输入
+            resetForm();
+        }
+
+        /**
+         * 编辑指定索引的账单：将数据回填到表单
+         * @param {number} index - 要编辑的账单在数组中的索引
+         */
+        function editBill(index) {
+            const bills = loadBills();
+            const bill = bills[index];
+
+            // 设置当前编辑索引
+            currentEditIndex = index;
+
+            // 将账单数据回填到表单
+            document.getElementById('inputType').value = bill.type;
+            document.getElementById('inputAmount').value = bill.amount;
+            document.getElementById('inputCategory').value = bill.category;
+            document.getElementById('inputNote').value = bill.note || '';
+
+            // 更新按钮状态：添加→更新，显示取消按钮
+            updateFormMode();
+
+            // 滚动到表单区域
+            document.getElementById('addForm').scrollIntoView({ behavior: 'smooth' });
+            // 聚焦金额输入框方便修改
+            document.getElementById('inputAmount').focus();
+        }
+
+        /**
+         * 取消编辑：清空表单，恢复新增模式
+         */
+        function cancelEdit() {
+            currentEditIndex = -1;
+            resetForm();
+            updateFormMode();
+            document.getElementById('inputAmount').focus();
+        }
+
+        /**
+         * 根据编辑状态更新表单UI（按钮文字和可见性）
+         */
+        function updateFormMode() {
+            const btnSubmit = document.getElementById('btnSubmit');
+            const btnCancel = document.getElementById('btnCancel');
+            if (currentEditIndex === -1) {
+                // 新增模式
+                btnSubmit.textContent = '➕ 添加记录';
+                btnCancel.style.display = 'none';
+            } else {
+                // 编辑模式
+                btnSubmit.textContent = '✅ 更新记录';
+                btnCancel.style.display = 'inline-block';
+            }
+        }
+
+        /**
+         * 重置表单：清空金额和备注，恢复默认类型和分类
+         */
+        function resetForm() {
+            document.getElementById('inputAmount').value = '';
+            document.getElementById('inputNote').value = '';
+            document.getElementById('inputType').value = 'income';
+            document.getElementById('inputCategory').value = '餐饮';
+            currentEditIndex = -1;
+        }
+
+        /**
+         * 删除指定索引的账单
+         * @param {number} index - 要删除的账单在数组中的索引
+         */
+        function deleteBill(index) {
+            const bills = loadBills();
+            const bill = bills[index];
+            // 确认删除弹窗
+            const typeText = bill.type === 'income' ? '收入' : '支出';
+            const msg = '确定要删除这条' + typeText + '记录吗？\n' +
+                '分类：' + bill.category + '\n' +
+                '金额：¥' + Number(bill.amount).toFixed(2);
+            if (!confirm(msg)) return;
+            // 删除指定索引的账单
+            bills.splice(index, 1);
+            // 保存
+            saveBills(bills);
+            // 重新渲染
+            renderAll();
+        }
+
+        /**
+         * 设置筛选条件
+         * @param {string} filter - 'all' | 'income' | 'expense'
+         * @param {HTMLElement} btn - 被点击的按钮元素
+         */
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            // 更新筛选按钮的激活状态
+            const btns = document.querySelectorAll('.filter-bar button');
+            btns.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            // 重新渲染账单列表
+            renderAll();
+        }
+
+        // ========== 键盘快捷键支持 ==========
+        // 在金额输入框按回车键直接添加记录
+        document.getElementById('inputAmount').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // 阻止默认行为
+                addOrUpdateBill();
+            }
+        });
+        // 在备注输入框按回车键也直接添加/更新
+        document.getElementById('inputNote').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addOrUpdateBill();
+            }
+        });
+
+        // ========== 页面初始化 ==========
+        window.onload = function () {
+            renderAll(); // 渲染汇总卡片和账单列表
+        };
+    </script>
+</body>
+
+</html>

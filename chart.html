@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<!-- 声明当前文档为HTML5标准文档 -->
+<html lang="zh-CN">
+<!-- 设置网页语言为中文 -->
+
+<head>
+    <!-- 设置网页字符编码为UTF-8，防止中文乱码 -->
+    <meta charset="UTF-8">
+    <!-- 网页标题，浏览器标签栏显示文字 -->
+    <title>ECharts</title>
+    <!-- 引入ECharts 5.4.3官方CDN在线库，提供绘图所需全部JS方法 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        /* 全局页面样式设置 */
+        body {
+            padding: 20px;
+            /* 页面整体内边距，内容距离页面四边留出空隙 */
+            font-family: "Microsoft YaHei";
+            /* 统一页面字体为微软雅黑 */
+            background: #fff;
+            /* 页面背景纯白色 */
+        }
+
+        /* 每个图表模块的大标题样式 */
+        h2 {
+            margin: 40px 0 8px;
+            /* 上下外边距，标题与其他元素拉开距离 */
+            font-size: 32px;
+            /* 标题文字字号 */
+            border-left: 6px solid #409EFF;
+            /* 左侧蓝色竖装饰线 */
+            padding-left: 12px;
+            /* 文字距离左侧蓝线内边距 */
+            color: #333;
+            /* 标题深灰色文字 */
+        }
+
+        /* 图表画布容器，用来承载渲染后的图表 */
+        .chart-box {
+            width: 98%;
+            /* 宽度占父容器98%，左右留少量空隙 */
+            height: 420px;
+            /* 固定图表高度，保证每个图表大小统一 */
+            margin: 0 auto 30px;
+            /* 水平居中，底部外边距 */
+        }
+
+        /* 饼图底部说明文字（独立于ECharts画布，标签不会覆盖） */
+        .chart-desc {
+            text-align: center;
+            color: #999;
+            font-size: 18px;
+            margin-top: 6px;
+            padding-bottom: 4px;
+        }
+
+        /* 分块卡片容器，每个图表单独一块边框区域，区分不同图表 */
+        .chart-block {
+            border: 1px solid #eee;
+            /* 浅灰色边框 */
+            border-radius: 8px;
+            /* 边框圆角，美化界面 */
+            padding: 20px;
+            /* 卡片内部内边距，文字图表离边框有距离 */
+            margin-bottom: 35px;
+            /* 卡片与下一张卡片的间距 */
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+            /* 轻微阴影，分层效果 */
+        }
+
+        /* ========== 响应式布局：手机端适配 ========== */
+        @media screen and (max-width: 768px) {
+            h2 {
+                font-size: 18px;
+                /* 缩小标题 */
+                margin: 20px 0 5px;
+                /* 缩小边距 */
+                border-left-width: 4px;
+                /* 缩小左侧装饰线 */
+                padding-left: 8px;
+                /* 缩小内边距 */
+            }
+
+            .chart-box {
+                width: 100%;
+                /* 占满宽度 */
+                height: 280px;
+                /* 缩小图表高度 */
+                margin: 0 auto 15px;
+                /* 缩小底部间距 */
+            }
+
+            .chart-block {
+                padding: 10px;
+                /* 缩小内边距 */
+                margin-bottom: 18px;
+                /* 缩小卡片间距 */
+            }
+
+            body {
+                padding: 10px;
+                /* 缩小页面内边距 */
+            }
+
+            .chart-desc {
+                font-size: 12px;
+                /* 缩小说明文字 */
+            }
+        }
+
+        /* ========== 响应式布局：小屏手机适配（≤480px） ========== */
+        @media screen and (max-width: 480px) {
+            h2 {
+                font-size: 15px;
+                /* 进一步缩小标题 */
+                margin: 14px 0 4px;
+            }
+
+            .chart-box {
+                height: 240px;
+                /* 进一步缩小图表高度 */
+            }
+
+            .chart-block {
+                padding: 6px;
+                /* 进一步缩小内边距 */
+                margin-bottom: 12px;
+                border-radius: 6px;
+                /* 减小圆角 */
+            }
+
+            body {
+                padding: 5px;
+                /* 最小页面内边距 */
+            }
+
+            .chart-desc {
+                font-size: 10px;
+                /* 进一步缩小说明文字 */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 第一块卡片：基础折线图模块区域 -->
+    <div class="chart-block">
+        <!-- 模块标题 -->
+        <h2>1. 基础折线图</h2>
+        <!-- 图表渲染容器DOM，ECharts会在此标签内绘制图表 -->
+        <div id="line1" class="chart-box"></div>
+    </div>
+
+    <!-- 第二块卡片：堆叠折线图模块区域 -->
+    <div class="chart-block">
+        <h2>2. 堆叠折线图</h2>
+        <!-- 堆叠折线图画布容器 -->
+        <div id="stackLine" class="chart-box"></div>
+    </div>
+
+    <!-- 第三块卡片：区域面积图模块区域 -->
+    <div class="chart-block">
+        <h2>3. 区域面积图</h2>
+        <!-- 面积图画布容器 -->
+        <div id="areaChart" class="chart-box"></div>
+    </div>
+
+    <!-- 第四块卡片：基础环形饼图模块区域 -->
+    <div class="chart-block">
+        <h2>4. 基础饼图</h2>
+        <!-- 饼图画布容器 -->
+        <div id="pieBase" class="chart-box"></div>
+        <!-- 饼图说明文字（独立于ECharts画布，避免被标签覆盖） -->
+        <p class="chart-desc">2025 年 Q4 各品类销售占比</p>
+    </div>
+
+    <script>
+        // ========== 响应式配置：三级适配（桌面/平板/小屏手机） ==========
+        function screenTier() {
+            var w = window.innerWidth;
+            if (w <= 480) return 'small';   // 小屏手机
+            if (w <= 768) return 'mobile';  // 平板/大屏手机
+            return 'desktop';               // 桌面端
+        }
+
+        // ========== 获取响应式图表通用配置 ==========
+        function getResponsiveOpts() {
+            var tier = screenTier();
+            if (tier === 'small') {
+                return {
+                    gFontSize: 10,
+                    gBottom: 3,
+                    gridBottom: '20%',
+                    gridLeft: '6%',
+                    gridRight: '6%',
+                    legendFontSize: 9,
+                    symbolSize: 4,
+                };
+            } else if (tier === 'mobile') {
+                return {
+                    gFontSize: 12,
+                    gBottom: 5,
+                    gridBottom: '18%',
+                    gridLeft: '5%',
+                    gridRight: '5%',
+                    legendFontSize: 10,
+                    symbolSize: 6,
+                };
+            } else {
+                return {
+                    gFontSize: 18,
+                    gBottom: 10,
+                    gridBottom: '12%',
+                    gridLeft: '3%',
+                    gridRight: '4%',
+                    legendFontSize: 13,
+                    symbolSize: 10,
+                };
+            }
+        }
+
+        // ====================== 1、基础折线图 绘图逻辑 ======================
+        const lineChart = echarts.init(document.getElementById('line1'));
+        let resp1 = getResponsiveOpts();
+        const lineOption = {
+            tooltip: { trigger: 'axis' },
+            legend: {
+                data: ['销售额'],
+                top: 10,
+                left: 'center',
+                textStyle: { fontSize: resp1.legendFontSize }
+            },
+            grid: {
+                left: resp1.gridLeft,
+                right: resp1.gridRight,
+                bottom: resp1.gridBottom,
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['1月', '2月', '3月', '4月', '5月', '6月']
+            },
+            yAxis: {
+                type: 'value',
+                name: '万元',
+                splitLine: { lineStyle: { type: 'dashed', color: '#ddd' } },
+                max: 100
+            },
+            series: [{
+                name: '销售额',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: resp1.symbolSize,
+                color: '#409EFF',
+                areaStyle: { color: 'rgba(64, 158, 255, 0.08)' },
+                data: [32, 28, 45, 68, 55, 82]
+            }],
+            graphic: {
+                type: 'text',
+                bottom: resp1.gBottom,
+                left: 'center',
+                style: {
+                    fill: '#999',
+                    fontSize: resp1.gFontSize,
+                    text: '2025 年上半年月度销售额趋势（万元）'
+                }
+            }
+        };
+        lineChart.setOption(lineOption);
+
+        // ====================== 2、堆叠折线图 绘图逻辑 ======================
+        const stackChart = echarts.init(document.getElementById('stackLine'));
+        let resp2 = getResponsiveOpts();
+        const stackOption = {
+            tooltip: {
+                trigger: 'axis',
+                formatter: function (params) {
+                    let res = params[0].axisValue + '<br>';
+                    let total = 0;
+                    params.forEach(item => {
+                        res += `${item.marker} ${item.seriesName}: ${item.value} 万元<br>`;
+                        total += item.value;
+                    })
+                    res += `<strong>总计: ${total} 万元</strong>`;
+                    return res;
+                }
+            },
+            legend: {
+                data: ['产品A', '产品B', '产品C'],
+                top: 10,
+                left: 'center',
+                textStyle: { fontSize: resp2.legendFontSize }
+            },
+            grid: {
+                left: resp2.gridLeft,
+                right: resp2.gridRight,
+                bottom: resp2.gridBottom,
+                containLabel: true
+            },
+            xAxis: { type: 'category', data: ['Q1', 'Q2', 'Q3', 'Q4'] },
+            yAxis: {
+                type: 'value',
+                name: '万元',
+                splitLine: { lineStyle: { type: 'dashed', color: '#ddd' } },
+                max: 150
+            },
+            series: [
+                {
+                    name: '产品A', type: 'line', stack: 'total', smooth: true,
+                    symbol: 'diamond', symbolSize: resp2.symbolSize,
+                    color: '#F56C6C',
+                    areaStyle: { color: 'rgba(245, 108, 108, 0.15)' },
+                    data: [20, 30, 45, 55]
+                },
+                {
+                    name: '产品B', type: 'line', stack: 'total', smooth: true,
+                    symbol: 'circle', symbolSize: resp2.symbolSize,
+                    color: '#67C23A',
+                    areaStyle: { color: 'rgba(103, 194, 58, 0.15)' },
+                    data: [15, 25, 30, 40]
+                },
+                {
+                    name: '产品C', type: 'line', stack: 'total', smooth: true,
+                    symbol: 'square', symbolSize: resp2.symbolSize,
+                    color: '#E6A23C',
+                    areaStyle: { color: 'rgba(230, 162, 60, 0.15)' },
+                    data: [10, 18, 22, 35]
+                }
+            ],
+            graphic: {
+                type: 'text',
+                bottom: resp2.gBottom,
+                left: 'center',
+                style: {
+                    fill: '#999',
+                    fontSize: resp2.gFontSize,
+                    text: '各产品线季度收入占比堆叠展示（万元）'
+                }
+            }
+        };
+        stackChart.setOption(stackOption);
+
+        // ====================== 3、区域面积图 绘图逻辑 ======================
+        const areaChart = echarts.init(document.getElementById('areaChart'));
+        let resp3 = getResponsiveOpts();
+        const areaOption = {
+            tooltip: { trigger: 'axis' },
+            legend: {
+                data: ['2024年', '2025年'],
+                top: 10,
+                left: 'center',
+                textStyle: { fontSize: resp3.legendFontSize }
+            },
+            grid: {
+                left: resp3.gridLeft,
+                right: resp3.gridRight,
+                bottom: resp3.gridBottom,
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+            },
+            yAxis: {
+                type: 'value',
+                name: '温度 (℃)',
+                splitLine: { lineStyle: { type: 'dashed', color: '#ddd' } },
+                min: -5, max: 40
+            },
+            series: [
+                {
+                    name: '2024年', type: 'line', smooth: true,
+                    symbol: 'circle', symbolSize: resp3.symbolSize,
+                    color: '#409EFF',
+                    areaStyle: { color: 'rgba(64, 158, 255, 0.12)' },
+                    data: [1, 3, 8, 14, 20, 25, 28, 27, 22, 16, 9, 3]
+                },
+                {
+                    name: '2025年', type: 'line', smooth: true,
+                    symbol: 'circle', symbolSize: resp3.symbolSize,
+                    color: '#67C23A',
+                    areaStyle: { color: 'rgba(245, 108, 108, 0.12)' },
+                    data: [0, 4, 10, 16, 22, 28, 31, 30, 24, 18, 11, 5]
+                }
+            ],
+            graphic: {
+                type: 'text',
+                bottom: resp3.gBottom,
+                left: 'center',
+                style: {
+                    fill: '#999',
+                    fontSize: resp3.gFontSize,
+                    text: '近两年月均气温变化（℃）（带面积填充）'
+                }
+            }
+        };
+        areaChart.setOption(areaOption);
+
+        // ====================== 4、基础环形饼图 绘图逻辑 ======================
+        const pieChart = echarts.init(document.getElementById('pieBase'));
+        const pieData = [
+            { value: 85, name: '家电', itemStyle: { color: '#409EFF' } },
+            { value: 62, name: '数码', itemStyle: { color: '#F56C6C' } },
+            { value: 48, name: '服装', itemStyle: { color: '#67C23A' } },
+            { value: 35, name: '食品', itemStyle: { color: '#E6A23C' } },
+            { value: 20, name: '其他', itemStyle: { color: '#909399' } }
+        ];
+
+        function getPieOption() {
+            var tier = screenTier();
+            var isSmall = (tier === 'small');
+            var isMobile = (tier === 'small' || tier === 'mobile');
+            return {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}万元 ({d}%)'
+                },
+                legend: {
+                    orient: isMobile ? 'horizontal' : 'vertical',
+                    left: isMobile ? 'center' : '85%',
+                    top: isMobile ? 'bottom' : 'middle',
+                    data: ['家电', '数码', '服装', '食品', '其他'],
+                    textStyle: { fontSize: isSmall ? 9 : (isMobile ? 10 : 13) }
+                },
+                series: [{
+                    name: '销售额',
+                    type: 'pie',
+                    radius: isSmall ? ['32%', '52%'] : (isMobile ? ['35%', '58%'] : ['42%', '72%']),
+                    center: isSmall ? ['50%', '40%'] : (isMobile ? ['50%', '42%'] : ['45%', '50%']),
+                    data: pieData,
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        formatter: '{b}\n{d}%',
+                        fontSize: isSmall ? 9 : (isMobile ? 10 : 12)
+                    },
+                    labelLine: {
+                        show: true,
+                        length: isSmall ? 6 : (isMobile ? 8 : 12),
+                        length2: isSmall ? 10 : (isMobile ? 12 : 18)
+                    }
+                }]
+            };
+        }
+        pieChart.setOption(getPieOption());
+
+        // ========== 窗口大小改变时响应式更新所有图表 ==========
+        window.addEventListener('resize', () => {
+            var opts = getResponsiveOpts();
+
+            // 更新基础折线图
+            lineChart.setOption({
+                legend: { textStyle: { fontSize: opts.legendFontSize } },
+                grid: { left: opts.gridLeft, right: opts.gridRight, bottom: opts.gridBottom },
+                series: [{ symbolSize: opts.symbolSize }],
+                graphic: { bottom: opts.gBottom, style: { fontSize: opts.gFontSize } }
+            });
+
+            // 更新堆叠折线图
+            stackChart.setOption({
+                legend: { textStyle: { fontSize: opts.legendFontSize } },
+                grid: { left: opts.gridLeft, right: opts.gridRight, bottom: opts.gridBottom },
+                series: [{ symbolSize: opts.symbolSize }, { symbolSize: opts.symbolSize }, { symbolSize: opts.symbolSize }],
+                graphic: { bottom: opts.gBottom, style: { fontSize: opts.gFontSize } }
+            });
+
+            // 更新面积图
+            areaChart.setOption({
+                legend: { textStyle: { fontSize: opts.legendFontSize } },
+                grid: { left: opts.gridLeft, right: opts.gridRight, bottom: opts.gridBottom },
+                series: [{ symbolSize: opts.symbolSize }, { symbolSize: opts.symbolSize }],
+                graphic: { bottom: opts.gBottom, style: { fontSize: opts.gFontSize } }
+            });
+
+            // 更新饼图（完全重新设置选项以处理图例位置变化）
+            pieChart.setOption(getPieOption(), true);
+
+            // 重绘所有图表
+            lineChart.resize();
+            stackChart.resize();
+            areaChart.resize();
+            pieChart.resize();
+        })
+    </script>
+</body>
+
+</html>

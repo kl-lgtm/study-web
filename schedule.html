@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!-- HTML5 文档声明 -->
+<html lang="zh-CN">
+<!-- 网页头部：设置编码、标题、引入样式 -->
+
+<head>
+    <!-- 设置文档字符编码为UTF-8 -->
+    <meta charset="UTF-8">
+    <!-- 网页标题 -->
+    <title>课表</title>
+    <!-- 引入外部CSS样式文件 -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<!-- 网页主体内容 -->
+
+<body>
+    <!-- 课表标题 -->
+    <h3>课表</h3>
+
+    <!-- 课程表表格 -->
+    <table>
+        <!-- 表头行：设置列名 -->
+        <tr>
+            <!-- colspan="2"：水平合并2列，将节次列合并 -->
+            <th colspan="2">节次</th>
+            <th>星期一</th>
+            <th>星期二</th>
+            <th>星期三</th>
+            <th>星期四</th>
+            <th>星期五</th>
+        </tr>
+
+        <!-- 上午时段 - 第一二节 -->
+        <tr>
+            <!-- rowspan="2"：垂直合并2行，覆盖上午所有课程 -->
+            <td rowspan="2">上午</td>
+            <td>第一二节</td>
+            <td class="computer">计算机组成原理<strong>3A512</strong></td>
+            <td class="java">Java语言课程设计<strong>工A103</strong></td>
+            <td class="java">Java语言<strong>工A103</strong></td>
+            <td class="db">数据库原理与应用<strong>3A216</strong></td>
+            <td class="ls">离散数学<strong>3A216</strong></td>
+        </tr>
+
+        <!-- 上午时段 - 第三四节 -->
+        <tr>
+            <td>第三四节</td>
+            <td class="java">Java语言<strong>工A103</strong></td>
+            <td class="web">Web技术基础<strong>工A306</strong></td>
+            <td class="ls">离散数学<strong>3A216</strong></td>
+            <td class="web">Web技术基础<strong>工A306</strong></td>
+            <td class="java">Java语言<strong>工A103</strong></td>
+        </tr>
+
+        <!-- 下午时段 - 第五六节 -->
+        <tr>
+            <!-- rowspan="2"：垂直合并2行，覆盖下午所有课程 -->
+            <td rowspan="2">下午</td>
+            <td>第五六节</td>
+            <td class="db">数据库原理与应用<strong>3A216</strong></td>
+            <td class="zhong">中国近现代史纲要<strong>1B107</strong></td>
+            <td></td>
+            <td></td>
+            <td class="zhong">中国近现代史纲要<strong>1B107</strong></td>
+        </tr>
+
+        <!-- 下午时段 - 第七八节 -->
+        <tr>
+            <td>第七八节</td>
+            <td class="db">数据库原理与应用<strong>3A216</strong></td>
+            <td class="zhong">中国近现代史纲要<strong>1B107</strong></td>
+            <td></td>
+            <td></td>
+            <td class="zhong">中国近现代史纲要<strong>1B107</strong></td>
+        </tr>
+    </table>
+
+    <!-- 点击课程后显示信息的区域 -->
+    <div id="courseInfo"
+        style="margin-top: 20px; text-align: center; font-size: 2em; color: magenta; font-weight: bold;"></div>
+
+    <!-- 实现点击显示功能的JS代码 -->
+    <script>
+        // 获取所有带有class属性的课程单元格
+        const courseCells = document.querySelectorAll('td[class]');
+        // 获取页面中用于显示课程信息的盒子
+        const infoBox = document.getElementById('courseInfo');
+
+        // 遍历所有课程单元格，为每个单元格添加点击事件
+        courseCells.forEach(cell => {
+            cell.addEventListener('click', function () {
+                // 获取当前点击单元格的文本内容，并去除首尾空格
+                const courseText = this.innerText.trim();
+                // 将课程文本显示在页面下方的信息区域
+                infoBox.innerText = courseText;
+            });
+        });
+    </script>
+</body>
+
+</html>

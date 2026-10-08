@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>教材</title>
+    <style>
+        /* 最外层容器：弹性布局，自动换行，居中排列 */
+        .box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 35px;
+            padding: 25px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* 每个课程项目：底部外边距 */
+        .item {
+            margin-bottom: 20px;
+        }
+
+        /* 课程名称：字体大小、颜色、加粗、上下间距 */
+        h4 {
+            font-size: 18px;
+            color: #0066cc;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        /* 教材/参考书文字：上下间距 */
+        p {
+            margin: 5px 0;
+        }
+
+        /* 教材图片：高度、过渡动画 */
+        img {
+            height: 160px;
+            transition: 0.8s;
+        }
+
+        /* 鼠标悬浮图片：旋转360度、放大 */
+        img:hover {
+            transform: rotate(360deg);
+            height: 480px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 页面标题：居中显示 -->
+    <h3 style="text-align:center;color: #e70b0b;">教材</h3>
+
+    <!-- 教材展示弹性布局容器 -->
+    <div class="box">
+        <!-- 计算机组成原理 -->
+        <div class="item">
+            <h4>计算机组成原理</h4>
+            <p>教材</p>
+            <img src="imgs/computer.jpg" alt="教材"><br>
+            <p>参考书</p>
+            <img src="imgs/computer2.jpg" alt="参考书1">
+            <img src="imgs/computer3.jpg" alt="参考书2">
+        </div>
+
+        <!-- Java语言课程设计 -->
+        <div class="item">
+            <h4>Java语言课程设计</h4>
+            <p>教材</p>
+            <img src="imgs/Java.jpg" alt="Java教材">
+        </div>
+
+        <!-- 数据库原理与应用 -->
+        <div class="item">
+            <h4>数据库原理与应用</h4>
+            <p>教材</p>
+            <img src="imgs/database.jpg" alt="数据库教材">
+        </div>
+
+        <!-- 离散数学 -->
+        <div class="item">
+            <h4>离散数学</h4>
+            <p>教材</p>
+            <img src="imgs/DiscreteMath.jpg" alt="离散数学教材">
+        </div>
+
+        <!-- Web技术基础 -->
+        <div class="item">
+            <h4>Web技术基础</h4>
+            <p>教材</p>
+            <img src="imgs/Web.jpg" alt="Web教材"><br>
+            <p>参考书</p>
+            <img src="imgs/Web2.jpg" alt="Web参考书">
+        </div>
+    </div>
+</body>
+
+</html>

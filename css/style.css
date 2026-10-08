@@ -1,0 +1,152 @@
+/* ============================================================
+   公共CSS样式文件
+   用途：为课表页面提供统一样式，同时定义响应式布局断点
+   ============================================================ */
+
+/* ========== 课表表格整体样式 ========== */
+table {
+    border: 1px solid #333;
+    /* 表格边框 */
+    border-collapse: collapse;
+    /* 合并相邻单元格边框 */
+    width: 95%;
+    /* 表格宽度占父容器 95% */
+    margin: 20px auto;
+    /* 上下外边距20px，左右自动居中 */
+}
+
+/* ========== 课表标题样式 ========== */
+h3 {
+    text-align: center;
+    /* 文字水平居中 */
+    color: red;
+    /* 红色文字 */
+}
+
+/* ========== 表格表头与单元格公共样式 ========== */
+th,
+td {
+    border: 1px solid #333;
+    /* 单元格边框 */
+    padding: 10px;
+    /* 单元格内边距 */
+    text-align: center;
+    /* 文字水平居中 */
+    transition: background 0.3s;
+    /* 背景色过渡动画(CSS3) */
+}
+
+/* ========== 表头单独样式 ========== */
+th {
+    background-color: #e3f2fd;
+    /* 表头浅蓝背景色 */
+    font-weight: bold;
+    /* 表头文字加粗 */
+}
+
+/* ========== 相同课程设置相同背景色（分类着色） ========== */
+/* Java类课程：浅橙色 */
+.java {
+    background: #ffe0b2;
+}
+
+/* Web课程：浅绿色 */
+.web {
+    background: #c8e6c9;
+}
+
+/* 数据库课程：浅粉色 */
+.db {
+    background: #f8bbd0;
+}
+
+/* 计算机组成原理：浅紫色 */
+.computer {
+    background: #d1c4e9;
+}
+
+/* 离散数学：浅黄色 */
+.ls {
+    background: #fff9c4;
+}
+
+/* 中国近现代史纲要：浅橘色 */
+.zhong {
+    background: #ffccbc;
+}
+
+/* ========== 表格行悬浮效果(CSS3) ========== */
+/* 提升交互体验：鼠标悬浮时行背景变亮 */
+tbody tr:hover td {
+    filter: brightness(1.05);
+    /* CSS3滤镜：提升亮度5% */
+    cursor: pointer;
+    /* 手型光标 */
+}
+
+/* ========== 课程信息显示区域样式 ========== */
+#courseInfo {
+    margin-top: 20px;
+    /* 顶部外边距 */
+    text-align: center;
+    /* 文字居中 */
+    font-size: 2em;
+    /* 字体大小为父元素的2倍 */
+    color: magenta;
+    /* 洋红色 */
+    font-weight: bold;
+    /* 加粗 */
+    min-height: 40px;
+    /* 最小高度，防止布局抖动 */
+    transition: all 0.3s;
+    /* 过渡动画(CSS3) */
+}
+
+/* ========== 响应式布局：平板端适配（768px ~ 1024px） ========== */
+@media screen and (max-width: 1024px) {
+    table {
+        width: 98%;
+        /* 更宽的占比 */
+    }
+
+    th,
+    td {
+        padding: 8px 4px;
+        /* 缩小内边距 */
+        font-size: 13px;
+        /* 缩小字体 */
+    }
+
+    #courseInfo {
+        font-size: 1.5em;
+        /* 缩小显示字体 */
+    }
+}
+
+/* ========== 响应式布局：手机端适配（≤768px） ========== */
+@media screen and (max-width: 768px) {
+    table {
+        width: 100%;
+        /* 占满宽度 */
+    }
+
+    th,
+    td {
+        padding: 6px 2px;
+        /* 进一步缩小内边距 */
+        font-size: 11px;
+        /* 进一步缩小字体 */
+    }
+
+    h3 {
+        font-size: 16px;
+        /* 缩小标题 */
+    }
+
+    #courseInfo {
+        font-size: 1.2em;
+        /* 缩小显示字体 */
+        margin-top: 15px;
+        /* 缩小上边距 */
+    }
+}
